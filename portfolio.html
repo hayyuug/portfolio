@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hayyuu G. — Taqwa SFC Agency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f0eb;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --mid: #1a1a1a;
+    --gray: #888;
+    --border: rgba(201,168,76,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .nav-links {
+    display: flex; gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: rgba(245,240,235,0.6);
+    text-decoration: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 48px 80px;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 70%);
+  }
+
+  .hero-line-v {
+    position: absolute;
+    left: 48px; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+    opacity: 0.25;
+  }
+
+  .hero-content {
+    position: relative;
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(4rem, 10vw, 9rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-name span {
+    display: block;
+    -webkit-text-stroke: 1px var(--white);
+    color: transparent;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 3vw, 1.6rem);
+    font-weight: 300;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: rgba(245,240,235,0.65);
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-cta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 14px 32px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 10px;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold);
+    padding: 14px 32px;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.07);
+  }
+
+  .hero-stats {
+    position: absolute; right: 0; bottom: 80px;
+    display: flex; flex-direction: column; gap: 32px;
+    opacity: 0;
+    animation: fadeLeft 0.8s 1.2s forwards;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,240,235,0.4);
+    margin-top: 4px;
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 120px 48px; }
+
+  .section-header {
+    display: flex; align-items: baseline; gap: 24px;
+    margin-bottom: 72px;
+  }
+
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-left: 24px;
+  }
+
+  /* ── ABOUT ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 80px;
+    align-items: start;
+    max-width: 1100px;
+  }
+
+  .about-photo-wrap {
+    position: relative;
+  }
+
+  .about-photo-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -12px -12px 12px 12px;
+    border: 1px solid var(--border);
+    z-index: 0;
+  }
+
+  .about-photo {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    object-position: top;
+    position: relative;
+    z-index: 1;
+    filter: grayscale(20%);
+  }
+
+  .about-photo-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--mid);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  .about-tag {
+    position: absolute;
+    bottom: -20px; right: -20px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 12px 20px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  .about-text h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    line-height: 1.4;
+    margin-bottom: 28px;
+    color: var(--white);
+  }
+
+  .about-text p {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: rgba(245,240,235,0.65);
+    margin-bottom: 20px;
+  }
+
+  .about-list {
+    margin-top: 40px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    list-style: none;
+  }
+
+  .about-list li {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: rgba(245,240,235,0.5);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .about-list li::before {
+    content: '';
+    width: 20px; height: 1px;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── SERVICES ── */
+  .services { background: var(--mid); }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+  }
+
+  .service-card {
+    background: var(--black);
+    padding: 48px 40px;
+    border: 1px solid rgba(201,168,76,0.08);
+    transition: all 0.4s;
+    cursor: default;
+  }
+
+  .service-card:hover {
+    border-color: rgba(201,168,76,0.3);
+    transform: translateY(-4px);
+  }
+
+  .service-card:hover .service-icon { color: var(--gold); }
+
+  .service-icon {
+    font-size: 1.8rem;
+    margin-bottom: 28px;
+    color: rgba(201,168,76,0.5);
+    transition: color 0.4s;
+  }
+
+  .service-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(201,168,76,0.4);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+  }
+
+  .service-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+
+  .service-desc {
+    font-size: 0.82rem;
+    line-height: 1.8;
+    color: rgba(245,240,235,0.5);
+  }
+
+  /* ── WORK ── */
+  .work-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 1100px;
+  }
+
+  .work-card {
+    background: var(--mid);
+    overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.08);
+    transition: all 0.4s;
+  }
+
+  .work-card:hover { border-color: rgba(201,168,76,0.25); }
+  .work-card:hover .work-img { transform: scale(1.04); }
+
+  .work-img-wrap {
+    overflow: hidden;
+    aspect-ratio: 16/9;
+    background: #111;
+  }
+
+  .work-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+    filter: grayscale(20%);
+  }
+
+  .work-body { padding: 28px 32px; }
+
+  .work-client {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .work-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .work-result {
+    font-size: 0.78rem;
+    color: rgba(245,240,235,0.5);
+    line-height: 1.7;
+  }
+
+  .work-tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 20px;
+  }
+
+  .tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid rgba(201,168,76,0.25);
+    color: rgba(201,168,76,0.7);
+  }
+
+  /* ── RESULTS TICKER ── */
+  .ticker-wrap {
+    background: var(--gold);
+    padding: 16px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-block;
+    animation: ticker 30s linear infinite;
+  }
+
+  .ticker-item {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--black);
+    margin: 0 48px;
+  }
+
+  .ticker-item::after {
+    content: '✦';
+    margin-left: 48px;
+    opacity: 0.4;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── CONTACT ── */
+  .contact { background: var(--mid); }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1100px;
+    align-items: start;
+  }
+
+  .contact-left h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 24px;
+  }
+
+  .contact-left p {
+    font-size: 0.88rem;
+    line-height: 1.9;
+    color: rgba(245,240,235,0.55);
+    margin-bottom: 40px;
+  }
+
+  .contact-items {
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .contact-item {
+    display: flex; align-items: center; gap: 16px;
+    text-decoration: none;
+    color: var(--white);
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+
+  .contact-item:hover {
+    border-color: rgba(201,168,76,0.4);
+    background: rgba(201,168,76,0.04);
+    transform: translateX(4px);
+  }
+
+  .contact-item-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .contact-item-info { flex: 1; }
+
+  .contact-item-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(245,240,235,0.4);
+    margin-bottom: 4px;
+  }
+
+  .contact-item-val {
+    font-size: 0.85rem;
+    color: var(--white);
+  }
+
+  .form-field {
+    margin-bottom: 20px;
+  }
+
+  .form-field label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,240,235,0.4);
+    margin-bottom: 10px;
+  }
+
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--white);
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus,
+  .form-field select:focus {
+    border-color: rgba(201,168,76,0.5);
+  }
+
+  .form-field textarea { resize: vertical; min-height: 120px; }
+
+  .form-field select option { background: #1a1a1a; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .submit-btn:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+  }
+
+  .footer-copy {
+    font-size: 0.7rem;
+    color: rgba(245,240,235,0.3);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-social {
+    display: flex; gap: 24px;
+  }
+
+  .footer-social a {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,240,235,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .footer-social a:hover { color: var(--gold); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeLeft {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s, transform 0.7s;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    section { padding: 80px 24px; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-stats { display: none; }
+    .about-grid { grid-template-columns: 1fr; gap: 48px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .work-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 20px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Taqwa SFC</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-line-v"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">بسم الله الرحمن الرحيم &nbsp;·&nbsp; Atlanta, Georgia</div>
+    <h1 class="hero-name">
+      Hayyuu<span>G.</span>
+    </h1>
+    <div class="hero-title">Social Media · Content Strategy · Data & Tech</div>
+    <p class="hero-desc">
+      I help businesses grow online through strategic social media management and content — backed by real data analytics, CRM systems, and technical know-how. Available for contract, freelance, and long-term partnerships.
+    </p>
+    <div class="hero-cta">
+      <a href="#work" class="btn-primary">View Work →</a>
+      <a href="#contact" class="btn-outline">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">300K+</div>
+      <div class="stat-label">Interactions Generated</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">41K</div>
+      <div class="stat-label">TikTok Likes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3+</div>
+      <div class="stat-label">Brands Managed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header reveal">
+    <span class="section-num">01</span>
+    <h2 class="section-title">About</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="about-grid">
+    <div class="about-photo-wrap reveal">
+      <!-- Graduation photo from portfolio -->
+      <div class="about-photo-placeholder" style="background: linear-gradient(135deg, #1a1a1a 0%, #111 100%); color: #666; font-family: 'Cormorant Garamond', serif; font-size: 1rem; letter-spacing: 0.05em;">Hayyuu G.</div>
+      <div class="about-tag">Director · Taqwa SFC</div>
+    </div>
+    <div class="about-text reveal">
+      <h3>"Creative vision meets analytical thinking — I use data and tech to make social media actually work for your business."</h3>
+      <p>
+        Based in Atlanta, Georgia, I'm a Computer & Information Systems student at Georgia State University (President's List 2024 & 2025) studying Data Analytics, Database Management, and Business Intelligence — skills I apply directly to client work.
+      </p>
+      <p>
+        I founded Taqwa SFC Agency to help businesses build real online presences backed by strategy and numbers, not guesswork. I've managed accounts, produced content, and grown brands generating over 300,000 social media interactions — all tracked and optimized with data.
+      </p>
+      <ul class="about-list">
+        <li>GSU — CIS, Expected 2028</li>
+        <li>President's List 2024 & 2025</li>
+        <li>Data Analytics & BI</li>
+        <li>Arabic (Fusha) — Active Study</li>
+        <li>GoHighLevel CRM</li>
+        <li>Python · Pandas · Excel</li>
+        <li>TikTok · Instagram · Meta</li>
+        <li>British Airways · Amazon</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span class="ticker-item">Social Media Management</span>
+    <span class="ticker-item">Short-Form Video</span>
+    <span class="ticker-item">Python · Pandas</span>
+    <span class="ticker-item">Content Strategy</span>
+    <span class="ticker-item">Data Analytics</span>
+    <span class="ticker-item">CRM Systems</span>
+    <span class="ticker-item">Brand Growth</span>
+    <span class="ticker-item">Excel · BI Reporting</span>
+    <span class="ticker-item">Social Media Management</span>
+    <span class="ticker-item">Short-Form Video</span>
+    <span class="ticker-item">Python · Pandas</span>
+    <span class="ticker-item">Content Strategy</span>
+    <span class="ticker-item">Data Analytics</span>
+    <span class="ticker-item">CRM Systems</span>
+    <span class="ticker-item">Brand Growth</span>
+    <span class="ticker-item">Excel · BI Reporting</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" class="services">
+  <div class="section-header reveal">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Services</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-icon">◈</div>
+      <div class="service-num">01 / 05</div>
+      <div class="service-name">Social Media<br>Management</div>
+      <p class="service-desc">Full-service management of your Instagram, TikTok, Facebook, and more. Consistent posting, engagement, and growth strategies tailored to your audience.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">◉</div>
+      <div class="service-num">02 / 05</div>
+      <div class="service-name">Short-Form<br>Video & Content</div>
+      <p class="service-desc">Reels, TikToks, and YouTube Shorts that hook viewers and convert them to followers and customers. Script, shoot guidance, edit, and publish.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">◇</div>
+      <div class="service-num">03 / 05</div>
+      <div class="service-name">Data Analytics<br>& Reporting</div>
+      <p class="service-desc">Monthly performance reports, audience insights, and actionable recommendations using Excel, Python (Pandas), and platform analytics tools.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">▷</div>
+      <div class="service-num">04 / 05</div>
+      <div class="service-name">CRM & Client<br>Pipeline Setup</div>
+      <p class="service-desc">GoHighLevel CRM setup, pipeline management, and client communication workflows. Keep your leads organized and your follow-ups on point.</p>
+    </div>
+    <div class="service-card reveal">
+      <div class="service-icon">◑</div>
+      <div class="service-num">05 / 05</div>
+      <div class="service-name">Business Growth<br>Consulting</div>
+      <p class="service-desc">Strategic advice for small businesses and entrepreneurs looking to establish or scale their digital presence. Honest, community-first approach.</p>
+    </div>
+    <div class="service-card reveal" style="background: linear-gradient(135deg, rgba(201,168,76,0.08) 0%, transparent 100%); border-color: rgba(201,168,76,0.2);">
+      <div style="height: 100%; display: flex; flex-direction: column; justify-content: center;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; color: var(--white); margin-bottom: 16px; line-height: 1.4;">Ready to grow your business online?</div>
+        <a href="#contact" class="btn-primary" style="display: inline-block; text-align: center; margin-top: 8px;">Let's Talk →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="section-header reveal">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Selected Work</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="work-grid">
+    <div class="work-card reveal">
+      <div class="work-img-wrap">
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a0a 0%,#0d0d05 100%);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);letter-spacing:0.1em;">Tarteel Travel</span>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-client">Tarteel Travel — Hajj & Umrah Agency</div>
+        <div class="work-title">Social Media Growth & Video Production</div>
+        <p class="work-result">Managed full social media presence for a US-based Hajj & Umrah travel agency. Produced short-form videos that grew the account and drove booking inquiries. Agency is now one of the largest Muslim travel agencies in the West.</p>
+        <div class="work-tags">
+          <span class="tag">TikTok</span>
+          <span class="tag">Instagram</span>
+          <span class="tag">Video Production</span>
+          <span class="tag">Content Strategy</span>
+        </div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="work-img-wrap">
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#0a0a1a 0%,#05050d 100%);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);letter-spacing:0.1em;">Zaahirah Travels</span>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-client">Zaahirah Travels</div>
+        <div class="work-title">Viral Content Creation</div>
+        <p class="work-result">Created video content for Zaahirah Travels. The featured creator in the video now has over 100K followers. Demonstrated ability to produce content with organic viral potential.</p>
+        <div class="work-tags">
+          <span class="tag">Viral Video</span>
+          <span class="tag">Content Creation</span>
+          <span class="tag">Travel Niche</span>
+        </div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="work-img-wrap">
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#0a1a0a 0%,#050d05 100%);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);letter-spacing:0.1em;">Amazon · British Airways</span>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-client">Amazon & British Airways — Data Analyst Roles</div>
+        <div class="work-title">Sentiment Analysis & Customer Data</div>
+        <p class="work-result">Analyzed customer and employee feedback data at Amazon to identify patterns and improve experiences. At British Airways, applied data cleaning and sentiment analysis on review datasets to surface actionable business insights using Python (Pandas).</p>
+        <div class="work-tags">
+          <span class="tag">Python · Pandas</span>
+          <span class="tag">Sentiment Analysis</span>
+          <span class="tag">Data Cleaning</span>
+          <span class="tag">BI Insights</span>
+        </div>
+      </div>
+    </div>
+    <div class="work-card reveal">
+      <div class="work-img-wrap">
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0a 0%,#0d0505 100%);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);letter-spacing:0.1em;">Bright Edge</span>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-client">Bright Edge — Sales Business Analyst</div>
+        <div class="work-title">CRM Management & Data Operations</div>
+        <p class="work-result">Managed client CRM pipelines using GoHighLevel, coordinated cross-functional communication via Slack, and delivered data-driven operational support using Excel for a remote sales team.</p>
+        <div class="work-tags">
+          <span class="tag">GoHighLevel CRM</span>
+          <span class="tag">Excel</span>
+          <span class="tag">Remote Operations</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact">
+  <div class="section-header reveal">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Get in Touch</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-left reveal">
+      <h3>Let's build something valuable together.</h3>
+      <p>Whether you're a small business owner, a community organization, or an entrepreneur — I'm available for contract work, social media management, content creation, and consulting. Rates are flexible.</p>
+      <div class="contact-items">
+        <a href="mailto:hayyuuj@gmail.com" class="contact-item">
+          <div class="contact-item-icon">✉</div>
+          <div class="contact-item-info">
+            <div class="contact-item-label">Email</div>
+            <div class="contact-item-val">hayyuuj@gmail.com</div>
+          </div>
+        </a>
+        <a href="tel:4049552813" class="contact-item">
+          <div class="contact-item-icon">☏</div>
+          <div class="contact-item-info">
+            <div class="contact-item-label">Phone</div>
+            <div class="contact-item-val">404-955-2813</div>
+          </div>
+        </a>
+        <a href="https://instagram.com/2hayyuu" target="_blank" class="contact-item">
+          <div class="contact-item-icon">◎</div>
+          <div class="contact-item-info">
+            <div class="contact-item-label">Instagram</div>
+            <div class="contact-item-val">@2hayyuu</div>
+          </div>
+        </a>
+        <a href="https://linkedin.com/in/hayyuug" target="_blank" class="contact-item">
+          <div class="contact-item-icon">in</div>
+          <div class="contact-item-info">
+            <div class="contact-item-label">LinkedIn</div>
+            <div class="contact-item-val">linkedin.com/in/hayyuug</div>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="form-row">
+        <div class="form-field">
+          <label>First Name</label>
+          <input type="text" placeholder="Ahmad">
+        </div>
+        <div class="form-field">
+          <label>Last Name</label>
+          <input type="text" placeholder="Al-Rashid">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-field">
+        <label>Business / Organization</label>
+        <input type="text" placeholder="Your business name">
+      </div>
+      <div class="form-field">
+        <label>Service Needed</label>
+        <select>
+          <option value="">Select a service...</option>
+          <option>Social Media Management</option>
+          <option>Short-Form Video & Content</option>
+          <option>Data Analytics & Reporting</option>
+          <option>CRM & Pipeline Setup</option>
+          <option>Business Growth Consulting</option>
+          <option>Other / Not Sure</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Message</label>
+        <textarea placeholder="Tell me about your business and what you're looking to accomplish..."></textarea>
+      </div>
+      <button class="submit-btn" onclick="alert('JazakAllahu khayran! I\'ll be in touch soon. — Hayyuu')">Send Message →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">TAQWA SFC</div>
+  <div class="footer-copy">© 2025 Hayyuu Gelchu · Atlanta, GA</div>
+  <div class="footer-social">
+    <a href="https://instagram.com/2hayyuu" target="_blank">Instagram</a>
+    <a href="https://linkedin.com/in/hayyuug" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>
