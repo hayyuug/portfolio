@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When Numbers Take Over | Basketball's Analytics War</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink:      #0A0A0A;
+    --paper:    #F5F0E8;
+    --cream:    #EDE8DC;
+    --court:    #C8973A;
+    --rust:     #B84C2B;
+    --slate:    #2C3E50;
+    --mist:     #8A8F99;
+    --white:    #FAFAF7;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ──────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(200,151,58,0.2);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.12em;
+    color: var(--court);
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--mist);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--court); }
+
+  /* ── HERO ─────────────────────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 140px 64px 80px 64px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--court);
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block;
+    width: 32px; height: 1px; background: var(--court);
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 8vw, 110px);
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    color: var(--white);
+    margin-bottom: 32px;
+  }
+  .hero-title span { color: var(--court); display: block; }
+
+  .hero-deck {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.7);
+    max-width: 440px;
+    margin-bottom: 48px;
+    font-style: italic;
+  }
+
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 14px 28px;
+    border: 1px solid var(--court);
+    color: var(--court);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase; text-decoration: none;
+    transition: all 0.25s;
+  }
+  .hero-cta:hover {
+    background: var(--court); color: var(--ink);
+  }
+  .hero-cta svg { transition: transform 0.25s; }
+  .hero-cta:hover svg { transform: translateX(4px); }
+
+  .hero-right {
+    position: relative;
+    background: linear-gradient(135deg, #1a1208 0%, #0f0a04 100%);
+  }
+
+  /* Basketball court graphic */
+  .court-graphic {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.15;
+  }
+  .court-svg { width: 80%; height: 80%; }
+
+  .hero-stat-stack {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: center; padding: 80px 48px;
+    gap: 0;
+  }
+
+  .hero-stat {
+    padding: 28px 0;
+    border-bottom: 1px solid rgba(200,151,58,0.15);
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-stat:nth-child(1) { animation-delay: 0.1s; }
+  .hero-stat:nth-child(2) { animation-delay: 0.25s; }
+  .hero-stat:nth-child(3) { animation-delay: 0.4s; }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px; line-height: 1;
+    color: var(--court);
+    letter-spacing: 0.02em;
+  }
+  .stat-label {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mist);
+    margin-top: 4px;
+  }
+  .stat-desc {
+    font-size: 14px; color: rgba(245,240,232,0.55); margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ── TICKER ───────────────────────────────────────── */
+  .ticker {
+    background: var(--court);
+    padding: 12px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex; gap: 64px;
+    animation: ticker 28s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px; letter-spacing: 0.1em;
+    color: var(--ink);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .ticker-item::before { content: '●'; font-size: 6px; }
+
+  /* ── SECTION WRAPPER ─────────────────────────────── */
+  section { position: relative; }
+
+  .section-tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--court);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .section-tag::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(200,151,58,0.3);
+  }
+
+  /* ── INTRO SECTION ───────────────────────────────── */
+  .intro-section {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 80vh;
+  }
+
+  .intro-text {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 100px 64px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .intro-pullquote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 900; line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 40px;
+    border-left: 5px solid var(--court);
+    padding-left: 28px;
+  }
+
+  .intro-body {
+    font-size: 16px; line-height: 1.85;
+    color: #2a2820;
+    max-width: 520px;
+  }
+
+  .intro-visual {
+    background: var(--slate);
+    padding: 80px 48px;
+    display: flex; flex-direction: column;
+    justify-content: center; gap: 0;
+    position: relative; overflow: hidden;
+  }
+
+  .intro-visual::before {
+    content: '';
+    position: absolute; top: -100px; right: -100px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,151,58,0.12) 0%, transparent 70%);
+  }
+
+  /* ── STAT BARS ───────────────────────────────────── */
+  .stat-bars { display: flex; flex-direction: column; gap: 28px; }
+
+  .bar-item { position: relative; }
+  .bar-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .bar-name { font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mist); }
+  .bar-value { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--court); }
+  .bar-track { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; background: var(--court); animation: barGrow 1.4s ease both; }
+  .bar-fill.fill-87  { --target: 87%; }
+  .bar-fill.fill-38  { --target: 38%; animation-delay: 0.15s; }
+  .bar-fill.fill-19  { --target: 19%; animation-delay: 0.3s; }
+  .bar-note { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 6px; }
+
+  .bar-callout {
+    margin-top: 48px;
+    padding: 24px;
+    border: 1px solid rgba(200,151,58,0.25);
+    border-left: 3px solid var(--court);
+  }
+  .bar-callout-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-style: italic;
+    color: rgba(245,240,232,0.75); line-height: 1.65;
+  }
+  .bar-callout-attr {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--court); margin-top: 10px;
+  }
+
+  /* ── TIMELINE SECTION ───────────────────────────── */
+  .timeline-section {
+    background: var(--ink);
+    padding: 120px 64px;
+  }
+
+  .timeline-header {
+    text-align: center; margin-bottom: 80px;
+  }
+
+  .timeline-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    letter-spacing: 0.02em; line-height: 1;
+    color: var(--white);
+  }
+  .timeline-title em {
+    font-style: normal;
+    color: var(--court);
+  }
+
+  .timeline-sub {
+    font-size: 16px; color: var(--mist); margin-top: 16px;
+  }
+
+  .timeline {
+    max-width: 900px; margin: 0 auto;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 50%; top: 0; bottom: 0;
+    width: 1px; background: rgba(200,151,58,0.2);
+    transform: translateX(-50%);
+  }
+
+  .tl-item {
+    display: grid; grid-template-columns: 1fr 60px 1fr;
+    gap: 0; margin-bottom: 60px; align-items: center;
+  }
+  .tl-item:nth-child(odd) .tl-content { grid-column: 1; text-align: right; }
+  .tl-item:nth-child(odd) .tl-dot    { grid-column: 2; }
+  .tl-item:nth-child(odd) .tl-empty  { grid-column: 3; }
+  .tl-item:nth-child(even) .tl-empty { grid-column: 1; }
+  .tl-item:nth-child(even) .tl-dot   { grid-column: 2; }
+  .tl-item:nth-child(even) .tl-content { grid-column: 3; }
+
+  .tl-content { padding: 0 32px; }
+  .tl-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; color: var(--court); line-height: 1;
+  }
+  .tl-headline {
+    font-weight: 600; font-size: 16px; color: var(--white);
+    margin: 4px 0 8px;
+  }
+  .tl-body { font-size: 14px; color: var(--mist); line-height: 1.65; }
+
+  .tl-dot {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tl-dot-inner {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--court);
+    box-shadow: 0 0 0 4px rgba(200,151,58,0.2);
+    flex-shrink: 0;
+  }
+  .tl-empty { padding: 0 32px; }
+
+  /* ── VOICES SECTION ─────────────────────────────── */
+  .voices-section {
+    background: var(--cream);
+    color: var(--ink);
+    padding: 120px 64px;
+  }
+
+  .voices-header { margin-bottom: 72px; }
+  .voices-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    letter-spacing: 0.02em; line-height: 1;
+    color: var(--ink);
+  }
+  .voices-sub {
+    font-size: 17px; color: #666; margin-top: 16px;
+    font-family: 'Playfair Display', serif; font-style: italic;
+  }
+
+  .voices-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .voice-card {
+    padding: 48px 36px;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s;
+  }
+  .voice-card:hover { transform: translateY(-4px); }
+  .voice-card.traditionalist { background: var(--ink); color: var(--paper); }
+  .voice-card.analyst        { background: var(--court); color: var(--ink); }
+  .voice-card.fan            { background: var(--slate); color: var(--paper); }
+
+  .voice-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;
+  }
+  .voice-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px; font-weight: 700; line-height: 1.35;
+    margin-bottom: 20px;
+  }
+  .voice-card.analyst .voice-quote { font-style: italic; }
+  .voice-attribution {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; opacity: 0.6;
+  }
+  .voice-body {
+    font-size: 14px; line-height: 1.7; margin-top: 16px; opacity: 0.8;
+  }
+
+  /* ── KEY FACT SECTION ───────────────────────────── */
+  .keyfact-section {
+    background: var(--rust);
+    padding: 80px 64px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+  }
+
+  .keyfact-inner { max-width: 800px; }
+
+  .keyfact-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(100px, 14vw, 160px);
+    line-height: 0.85; color: var(--ink);
+    letter-spacing: 0.02em;
+    text-shadow: 6px 6px 0 rgba(0,0,0,0.15);
+  }
+
+  .keyfact-label {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(20px, 2.5vw, 30px);
+    font-style: italic; color: rgba(10,10,10,0.75);
+    line-height: 1.4; margin-top: 16px;
+  }
+
+  .keyfact-source {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(10,10,10,0.45);
+    margin-top: 20px;
+  }
+
+  /* ── DEBATE SECTION ─────────────────────────────── */
+  .debate-section {
+    background: var(--ink);
+    padding: 120px 64px;
+  }
+
+  .debate-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    letter-spacing: 0.02em; color: var(--white);
+    text-align: center; margin-bottom: 80px;
+    line-height: 1;
+  }
+  .debate-title span { color: var(--court); }
+
+  .debate-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 3px; max-width: 1100px; margin: 0 auto;
+  }
+
+  .debate-card {
+    padding: 52px 44px;
+    position: relative;
+  }
+  .debate-card.pro {
+    background: linear-gradient(135deg, #1a1208 0%, #120d04 100%);
+    border: 1px solid rgba(200,151,58,0.2);
+  }
+  .debate-card.con {
+    background: linear-gradient(135deg, #0f1319 0%, #090d12 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .debate-side {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; letter-spacing: 0.2em;
+    margin-bottom: 20px;
+  }
+  .debate-card.pro .debate-side { color: var(--court); }
+  .debate-card.con .debate-side { color: var(--mist); }
+
+  .debate-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700; line-height: 1.3;
+    color: var(--white); margin-bottom: 28px;
+  }
+
+  .debate-points { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  .debate-point {
+    display: flex; gap: 14px; align-items: flex-start;
+    font-size: 15px; line-height: 1.6; color: rgba(245,240,232,0.75);
+  }
+  .debate-point::before {
+    content: ''; flex-shrink: 0;
+    width: 6px; height: 6px; border-radius: 50%;
+    margin-top: 8px;
+  }
+  .debate-card.pro .debate-point::before { background: var(--court); }
+  .debate-card.con .debate-point::before { background: var(--mist); }
+
+  /* ── PLAYER SPOTLIGHT ───────────────────────────── */
+  .spotlight-section {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 70vh;
+  }
+
+  .spotlight-left {
+    background: #111;
+    display: flex; align-items: center; justify-content: center;
+    padding: 80px 48px;
+    position: relative; overflow: hidden;
+  }
+
+  .spotlight-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 260px; line-height: 1;
+    color: rgba(200,151,58,0.06);
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .spotlight-name-block {
+    position: relative; z-index: 2; text-align: center;
+  }
+  .spotlight-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 5vw, 72px);
+    letter-spacing: 0.04em; color: var(--white);
+    line-height: 1;
+  }
+  .spotlight-title-line {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--court);
+    margin-top: 12px;
+  }
+  .spotlight-stat-row {
+    display: flex; gap: 40px; justify-content: center;
+    margin-top: 36px;
+  }
+  .spotlight-stat-item { text-align: center; }
+  .spotlight-stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; color: var(--court); line-height: 1;
+  }
+  .spotlight-stat-lbl {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--mist); margin-top: 4px;
+  }
+
+  .spotlight-right {
+    background: var(--paper); color: var(--ink);
+    padding: 80px 56px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .spotlight-right .section-tag { color: var(--rust); }
+  .spotlight-right .section-tag::after { background: rgba(184,76,43,0.3); }
+
+  .spotlight-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 2.5vw, 34px);
+    font-weight: 900; line-height: 1.25;
+    color: var(--ink); margin-bottom: 24px;
+  }
+
+  .spotlight-body {
+    font-size: 15px; line-height: 1.85; color: #3a3830; margin-bottom: 28px;
+  }
+
+  .spotlight-quote {
+    border-left: 4px solid var(--rust);
+    padding: 16px 24px;
+    background: rgba(184,76,43,0.06);
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-style: italic; line-height: 1.6;
+    color: var(--ink);
+  }
+  .spotlight-quote cite {
+    display: block; font-style: normal;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--rust); margin-top: 10px;
+  }
+
+  /* ── CONCLUSION ─────────────────────────────────── */
+  .conclusion-section {
+    background: linear-gradient(180deg, var(--ink) 0%, #0d0800 100%);
+    padding: 140px 64px;
+    text-align: center;
+  }
+
+  .conclusion-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--court); margin-bottom: 32px;
+  }
+
+  .conclusion-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    letter-spacing: 0.02em; line-height: 0.95;
+    color: var(--white); margin-bottom: 48px;
+  }
+  .conclusion-title span { color: var(--court); display: block; }
+
+  .conclusion-body {
+    max-width: 700px; margin: 0 auto 56px;
+    font-family: 'Playfair Display', serif;
+    font-size: 19px; line-height: 1.8;
+    color: rgba(245,240,232,0.65); font-style: italic;
+  }
+
+  .sources-box {
+    max-width: 700px; margin: 80px auto 0;
+    border: 1px solid rgba(200,151,58,0.2);
+    padding: 40px 48px; text-align: left;
+  }
+  .sources-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 0.1em; color: var(--court);
+    margin-bottom: 24px;
+  }
+  .source-item {
+    font-size: 13px; color: var(--mist); line-height: 1.65;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .source-item:last-child { border-bottom: none; }
+
+  /* ── FOOTER ─────────────────────────────────────── */
+  footer {
+    background: #050505;
+    padding: 32px 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 1px solid rgba(200,151,58,0.1);
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 0.1em; color: var(--court);
+  }
+  .footer-credit {
+    font-size: 12px; color: var(--mist); letter-spacing: 0.06em;
+  }
+
+  /* ── ANIMATIONS ──────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes barGrow {
+    from { width: 0; }
+    to   { width: var(--target); }
+  }
+
+  .fade-in {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-in.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────────── */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero, .intro-section, .spotlight-section { grid-template-columns: 1fr; }
+    .hero-right { min-height: 60vw; }
+    .hero-left, .intro-text, .spotlight-right { padding: 80px 28px 48px; }
+    .intro-visual, .spotlight-left { padding: 60px 28px; }
+    .timeline-section, .voices-section, .debate-section, .conclusion-section { padding: 80px 28px; }
+    .timeline::before { left: 20px; }
+    .tl-item { grid-template-columns: 40px 1fr; }
+    .tl-item:nth-child(odd) .tl-content,
+    .tl-item:nth-child(even) .tl-content { grid-column: 2; text-align: left; }
+    .tl-item:nth-child(odd) .tl-dot,
+    .tl-item:nth-child(even) .tl-dot { grid-column: 1; }
+    .tl-empty { display: none; }
+    .voices-grid, .debate-grid { grid-template-columns: 1fr; }
+    .keyfact-section { padding: 60px 28px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">THE ANALYTICS WAR</div>
+  <ul class="nav-links">
+    <li><a href="#intro">The Issue</a></li>
+    <li><a href="#timeline">History</a></li>
+    <li><a href="#voices">Voices</a></li>
+    <li><a href="#debate">The Debate</a></li>
+    <li><a href="#spotlight">Case Study</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Basketball · Data · Identity</div>
+    <h1 class="hero-title">
+      When The
+      <span>Numbers</span>
+      Take Over
+    </h1>
+    <p class="hero-deck">
+      A data revolution is quietly rewriting the rules of basketball — and not everyone is winning.
+    </p>
+    <a href="#intro" class="hero-cta">
+      Explore the Controversy
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="hero-right">
+    <!-- Stylized court SVG -->
+    <div class="court-graphic">
+      <svg class="court-svg" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="360" height="260" rx="4" stroke="#C8973A" stroke-width="2"/>
+        <circle cx="200" cy="150" r="60" stroke="#C8973A" stroke-width="1.5"/>
+        <circle cx="200" cy="150" r="6" fill="#C8973A"/>
+        <line x1="200" y1="20" x2="200" y2="280" stroke="#C8973A" stroke-width="1"/>
+        <rect x="20" y="90" width="80" height="120" stroke="#C8973A" stroke-width="1.5"/>
+        <rect x="300" y="90" width="80" height="120" stroke="#C8973A" stroke-width="1.5"/>
+        <path d="M100 90 Q140 150 100 210" stroke="#C8973A" stroke-width="1.5" fill="none"/>
+        <path d="M300 90 Q260 150 300 210" stroke="#C8973A" stroke-width="1.5" fill="none"/>
+        <!-- 3-point arc suggestion -->
+        <path d="M40 220 Q200 20 360 220" stroke="#C8973A" stroke-width="1" stroke-dasharray="6 4"/>
+      </svg>
+    </div>
+
+    <div class="hero-stat-stack">
+      <div class="hero-stat">
+        <div class="stat-num">38.7%</div>
+        <div class="stat-label">of all NBA shots</div>
+        <div class="stat-desc">Three-point attempts in 2022–23, up from just 8.7% in 1992</div>
+      </div>
+      <div class="hero-stat">
+        <div class="stat-num">↓50%</div>
+        <div class="stat-label">Mid-range shots</div>
+        <div class="stat-desc">Fell from 38% (2000) to under 19% — an entire skill wiped from the game</div>
+      </div>
+      <div class="hero-stat">
+        <div class="stat-num">2003</div>
+        <div class="stat-label">The Moneyball moment</div>
+        <div class="stat-desc">The year a book about baseball changed basketball forever</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">MID-RANGE SHOTS: DECLARED OBSOLETE</span>
+    <span class="ticker-item">3-POINT ATTEMPTS: UP 344% SINCE 1992</span>
+    <span class="ticker-item">ANALYTICS VS. INSTINCT</span>
+    <span class="ticker-item">WHO OWNS THE GAME?</span>
+    <span class="ticker-item">DEMAR DEROZAN: "I DON'T UNDERSTAND IT"</span>
+    <span class="ticker-item">DARYL MOREY CHANGED EVERYTHING</span>
+    <span class="ticker-item">MID-RANGE SHOTS: DECLARED OBSOLETE</span>
+    <span class="ticker-item">3-POINT ATTEMPTS: UP 344% SINCE 1992</span>
+    <span class="ticker-item">ANALYTICS VS. INSTINCT</span>
+    <span class="ticker-item">WHO OWNS THE GAME?</span>
+    <span class="ticker-item">DEMAR DEROZAN: "I DON'T UNDERSTAND IT"</span>
+    <span class="ticker-item">DARYL MOREY CHANGED EVERYTHING</span>
+  </div>
+</div>
+
+<!-- INTRO SECTION -->
+<section id="intro" class="intro-section">
+  <div class="intro-text fade-in">
+    <div class="section-tag">The Issue</div>
+    <blockquote class="intro-pullquote">
+      "That shot is statistically inefficient. Do not take it."
+    </blockquote>
+    <p class="intro-body">
+      The shot clock is winding down. A player dribbles at the top of the key — 18 feet from the basket. His instinct tells him to pull up. It's a shot he's made ten thousand times. But somewhere in an office across the city, a screen flashes a different message.
+      <br><br>
+      Over the past two decades, this tension between a player's trained instincts and a data model's cold calculation has become one of the defining conflicts in professional basketball. <strong>Analytics</strong> — the use of advanced statistics to guide decision-making — has quietly reshaped every corner of the NBA: how teams draft, how plays are designed, and which shots are even considered acceptable.
+      <br><br>
+      For some, it's the future of intelligent competition. For others, it's the death of the game they love.
+    </p>
+  </div>
+
+  <div class="intro-visual fade-in">
+    <div class="section-tag" style="color: var(--court);">The Numbers Don't Lie</div>
+    <div class="stat-bars">
+      <div class="bar-item">
+        <div class="bar-label">
+          <span class="bar-name">3-Point Attempts (2022–23)</span>
+          <span class="bar-value">38.7%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill fill-87" style="width: var(--target, 0%)"></div></div>
+        <div class="bar-note">vs. just 8.7% in 1992</div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-label">
+          <span class="bar-name">Mid-Range 1999–2000</span>
+          <span class="bar-value">38%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill fill-38" style="width: var(--target, 0%)"></div></div>
+        <div class="bar-note">of all shot attempts</div>
+      </div>
+      <div class="bar-item">
+        <div class="bar-label">
+          <span class="bar-name">Mid-Range Today</span>
+          <span class="bar-value">&lt;19%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill fill-19" style="width: var(--target, 0%)"></div></div>
+        <div class="bar-note">and still falling — source: Bloyce & Carter, Sport in Society, 2023</div>
+      </div>
+    </div>
+
+    <div class="bar-callout">
+      <p class="bar-callout-text">"An entire skill category has been declared obsolete. For the first time in the sport's history, a widely mastered ability has been coached out of existence."</p>
+      <p class="bar-callout-attr">Research Summary — Bloyce & Carter, 2023</p>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline" class="timeline-section">
+  <div class="timeline-header fade-in">
+    <div class="section-tag" style="justify-content: center;">How We Got Here</div>
+    <h2 class="timeline-title">The <em>Revolution</em><br>Didn't Happen Overnight</h2>
+    <p class="timeline-sub">From postwar math to NBA front offices — the long road to Moreyball</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item fade-in">
+      <div class="tl-content">
+        <div class="tl-year">1950s</div>
+        <div class="tl-headline">Math Meets Sports</div>
+        <div class="tl-body">Operations researchers — scientists who used statistics during WWII — begin turning those tools toward athletic competition. The seeds are planted.</div>
+      </div>
+      <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+      <div class="tl-empty"></div>
+    </div>
+
+    <div class="tl-item fade-in">
+      <div class="tl-empty"></div>
+      <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+      <div class="tl-content">
+        <div class="tl-year">2003</div>
+        <div class="tl-headline">Moneyball Changes Everything</div>
+        <div class="tl-body">Michael Lewis publishes <em>Moneyball</em>. The Oakland Athletics prove a small-budget team can compete using data. Every major sport takes notice.</div>
+      </div>
+    </div>
+
+    <div class="tl-item fade-in">
+      <div class="tl-content">
+        <div class="tl-year">2007</div>
+        <div class="tl-headline">Morey Arrives in Houston</div>
+        <div class="tl-body">Daryl Morey becomes GM of the Houston Rockets. His core insight: three-point shots produce more expected value than mid-range twos. A philosophy is born.</div>
+      </div>
+      <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+      <div class="tl-empty"></div>
+    </div>
+
+    <div class="tl-item fade-in">
+      <div class="tl-empty"></div>
+      <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+      <div class="tl-content">
+        <div class="tl-year">2012–</div>
+        <div class="tl-headline">The League Follows the Data</div>
+        <div class="tl-body">Team after team adopts analytics-first strategies. The mid-range shot begins its rapid decline. By 2019, the Rockets average 44.8 three-point attempts per game.</div>
+      </div>
+    </div>
+
+    <div class="tl-item fade-in">
+      <div class="tl-content">
+        <div class="tl-year">2025</div>
+        <div class="tl-headline">MIT Confirms What Teams Already Knew</div>
+        <div class="tl-body">A peer-reviewed MIT study proves it: for every 0.8 additional analytics staff hired, a team wins one more game per season. The data industry has won the argument.</div>
+      </div>
+      <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+      <div class="tl-empty"></div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICES -->
+<section id="voices" class="voices-section">
+  <div class="voices-header fade-in">
+    <div class="section-tag">Three Sides</div>
+    <h2 class="voices-title">Everyone Has<br>a Take</h2>
+    <p class="voices-sub">The analytics debate has three distinct voices — and they don't agree on anything</p>
+  </div>
+
+  <div class="voices-grid">
+    <div class="voice-card traditionalist fade-in">
+      <div class="voice-label">The Traditionalists</div>
+      <p class="voice-quote">"I lost all of my creativity."</p>
+      <p class="voice-attribution">— Shane Battier, NBA Veteran</p>
+      <p class="voice-body">Players and former stars argue that data-driven coaching has come at a real cost — to creativity, identity, and the soul of the game. Charles Barkley called analytics advocates "idiots" on live television. Shane Battier, himself a believer in data, admitted it narrowed his game to a single dimension.</p>
+    </div>
+    <div class="voice-card analyst fade-in">
+      <div class="voice-label">The Analysts</div>
+      <p class="voice-quote">"The data doesn't lie. Winning is measurable."</p>
+      <p class="voice-attribution">— Analytics Community</p>
+      <p class="voice-body">Data advocates argue analytics is not an attack on creativity — it's a tool for making better decisions. The MIT research backs them up. All 30 NBA teams now employ analytics staff. The teams that invested earliest won more games. The evidence is hard to dismiss.</p>
+    </div>
+    <div class="voice-card fan fade-in">
+      <div class="voice-label">The Fans</div>
+      <p class="voice-quote">"The game feels engineered, not played."</p>
+      <p class="voice-attribution">— The Watching Public</p>
+      <p class="voice-body">Fans sit in the middle — they understand why teams use data, they accept it produces winning, but something still feels lost. The 2023–24 season featured 13 of the 16 most efficient offenses in NBA history — and fan complaints about predictability still dominated the conversation.</p>
+    </div>
+  </div>
+</section>
+
+<!-- KEY FACT -->
+<section class="keyfact-section">
+  <div class="keyfact-inner fade-in">
+    <div class="keyfact-num">0.8</div>
+    <p class="keyfact-label">
+      For every 0.8 additional data analysts a team hires,<br>they win <strong>one more game</strong> per season.
+    </p>
+    <p class="keyfact-source">Source: MIT / Journal of Sports Economics, 2025 — Jennifer Chu</p>
+  </div>
+</section>
+
+<!-- DEBATE -->
+<section id="debate" class="debate-section">
+  <h2 class="debate-title fade-in">The <span>Core</span> Debate</h2>
+
+  <div class="debate-grid">
+    <div class="debate-card pro fade-in">
+      <div class="debate-side">FOR ANALYTICS</div>
+      <h3>"The data makes teams smarter, and smarter teams win."</h3>
+      <ul class="debate-points">
+        <li class="debate-point">Three-point shots produce more points per attempt than mid-range twos — it's math</li>
+        <li class="debate-point">All 30 NBA teams now employ analytics staff. The industry has already voted</li>
+        <li class="debate-point">MIT research: analytics investment directly translates to wins, even controlling for salary and talent</li>
+        <li class="debate-point">Analytics doesn't replace creativity — it gives it a better framework</li>
+      </ul>
+    </div>
+    <div class="debate-card con fade-in">
+      <div class="debate-side">AGAINST ANALYTICS</div>
+      <h3>"Efficiency isn't everything. The game is supposed to feel like something."</h3>
+      <ul class="debate-points">
+        <li class="debate-point">The mid-range shot — mastered by Jordan, Kobe, McGrady — has been coached out of existence</li>
+        <li class="debate-point">Players whose strengths don't register on a spreadsheet lose careers, not just shots</li>
+        <li class="debate-point">When players follow prescribed patterns instead of instincts, the game becomes predictable</li>
+        <li class="debate-point">Analytics can measure winning. It cannot measure why watching should feel worth it</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PLAYER SPOTLIGHT -->
+<section id="spotlight" class="spotlight-section">
+  <div class="spotlight-left">
+    <div class="spotlight-number">10</div>
+    <div class="spotlight-name-block fade-in">
+      <div class="spotlight-title-line">Case Study · The Death Zone</div>
+      <div class="spotlight-name">DeMar<br>DeRozan</div>
+      <div class="spotlight-stat-row">
+        <div class="spotlight-stat-item">
+          <div class="spotlight-stat-val">20+</div>
+          <div class="spotlight-stat-lbl">PPG, 10+ seasons</div>
+        </div>
+        <div class="spotlight-stat-item">
+          <div class="spotlight-stat-val">6×</div>
+          <div class="spotlight-stat-lbl">All-Star</div>
+        </div>
+        <div class="spotlight-stat-item">
+          <div class="spotlight-stat-val">0</div>
+          <div class="spotlight-stat-lbl">Three-point reliance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spotlight-right fade-in">
+    <div class="section-tag">The Human Cost</div>
+    <h2 class="spotlight-headline">
+      A Multi-Time All-Star Whose Best Shot Is Called a Liability
+    </h2>
+    <p class="spotlight-body">
+      DeMar DeRozan averaged over 20 points per game for more than a decade without relying on three-pointers — one of the most skilled mid-range scorers in NBA history. Analytics teams call his favorite area of the court the <strong>"death zone."</strong>
+    </p>
+    <p class="spotlight-body">
+      His case illustrates what is most troubling about the analytics era: a player's lived mastery of a skill can be outweighed by a model that was never designed to measure the full complexity of human performance.
+    </p>
+    <blockquote class="spotlight-quote">
+      "I don't understand it. Is there something I'm missing here?"
+      <cite>— DeMar DeRozan, qtd. in Sekou Smith, NBA.com</cite>
+    </blockquote>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section class="conclusion-section">
+  <div class="conclusion-eyebrow">The Bottom Line</div>
+  <h2 class="conclusion-title fade-in">
+    What Is the Game
+    <span>Actually For?</span>
+  </h2>
+  <p class="conclusion-body fade-in">
+    The data revolution in basketball is real, it is accelerating, and it is affecting real people — players whose skills are being declared obsolete, fans whose viewing experience is shifting, and a sport whose identity is being renegotiated by algorithms. This controversy matters not because of three-point shots, but because of what those three-point shots are actually arguing about.
+  </p>
+
+  <div class="sources-box fade-in">
+    <div class="sources-title">Sources</div>
+    <div class="source-item">Bloyce, Daniel, and Roger J.F. Carter. "The Iron Cage of Efficiency: Analytics, Basketball and the Logic of Modernity." <em>Sport in Society</em>, vol. 26, no. 11, 2023, pp. 1785–1801.</div>
+    <div class="source-item">Chu, Jennifer. "Basketball Analytics Investment Is Key to NBA Wins." <em>MIT News</em>, 25 Mar. 2025.</div>
+    <div class="source-item">Gibson, Abraham. "Data Science and the 3-Point Revolution in the NBA." <em>Age of Revolutions</em>, 2019.</div>
+    <div class="source-item">Requena, Guillermo Alaman. "The Controversial Use of AI in Sports." <em>Medium</em>, 2024.</div>
+    <div class="source-item">Smith, Sekou. "DeMar DeRozan's Old-School Game Near Extinction." <em>NBA.com</em>, 2022.</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">THE ANALYTICS WAR</div>
+  <div class="footer-credit">Hayyuu Gelchu · English 1102 · Georgia State University · 2026</div>
+</footer>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Animate bar fills on scroll
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+          bar.style.width = bar.style.getPropertyValue('--target') || getComputedStyle(bar).getPropertyValue('--target');
+          const target = bar.className.includes('fill-87') ? '87%'
+                       : bar.className.includes('fill-38') ? '38%' : '19%';
+          bar.style.width = target;
+        });
+        barObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.stat-bars').forEach(el => barObserver.observe(el));
+</script>
+
+</body>
+</html>
