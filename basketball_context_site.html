@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numbers in the Paint | The History of Basketball Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --black:   #080808;
+    --offblk:  #111111;
+    --panel:   #161616;
+    --border:  #242424;
+    --amber:   #E8A020;
+    --amber2:  #F5C050;
+    --rust:    #C04A1A;
+    --cream:   #F2EDE4;
+    --stone:   #B8B0A4;
+    --smoke:   #6A6560;
+    --white:   #FAFAF8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── CUSTOM SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--amber); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 56px;
+    height: 64px;
+    background: rgba(8,8,8,0.95);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-wordmark {
+    font-family: 'Anton', sans-serif;
+    font-size: 18px; letter-spacing: 0.08em;
+    color: var(--amber);
+  }
+  .nav-items {
+    display: flex; gap: 40px; list-style: none;
+  }
+  .nav-items a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.12em;
+    color: var(--smoke); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-items a:hover { color: var(--amber); }
+  .nav-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: var(--smoke);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    padding: 64px 0 0;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 40%, rgba(232,160,32,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, rgba(192,74,26,0.06) 0%, transparent 60%);
+  }
+
+  /* Dot grid texture */
+  .hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .hero-top {
+    position: relative; z-index: 2;
+    display: flex; align-items: flex-start;
+    justify-content: space-between;
+    padding: 80px 56px 0;
+    gap: 40px;
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--amber); text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-label::before {
+    content: ''; width: 24px; height: 1px; background: var(--amber);
+  }
+
+  .hero-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(64px, 9vw, 130px);
+    line-height: 0.9; letter-spacing: 0.01em;
+    color: var(--white);
+    flex: 1;
+  }
+  .hero-title .line2 { color: var(--amber); }
+  .hero-title .line3 { color: var(--stone); font-size: 0.65em; }
+
+  .hero-right-block {
+    flex-shrink: 0; width: 340px;
+    padding-top: 16px;
+  }
+
+  .hero-intro {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 17px; line-height: 1.8;
+    color: rgba(242,237,228,0.65);
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+
+  .hero-pills {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    color: var(--stone);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .pill:hover { border-color: var(--amber); color: var(--amber); }
+  .pill.active { background: var(--amber); color: var(--black); border-color: var(--amber); }
+
+  /* Hero bottom data strip */
+  .hero-data-strip {
+    position: relative; z-index: 2;
+    margin-top: auto;
+    padding: 0 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border);
+    margin-top: 80px;
+  }
+
+  .data-cell {
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .data-cell:last-child { border-right: none; }
+  .data-cell-year {
+    font-family: 'Anton', sans-serif;
+    font-size: 48px; color: var(--amber); line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .data-cell-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--white); margin: 6px 0 4px;
+  }
+  .data-cell-desc {
+    font-size: 12px; color: var(--smoke); line-height: 1.5;
+  }
+  .data-cell-index {
+    position: absolute; top: 12px; right: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--border); letter-spacing: 0.1em;
+  }
+
+  /* ── RUNNING TICKER ── */
+  .ticker {
+    background: var(--amber);
+    padding: 10px 0; overflow: hidden; white-space: nowrap;
+  }
+  .ticker-track {
+    display: inline-flex; gap: 80px;
+    animation: scroll 32s linear infinite;
+  }
+  .ticker-word {
+    font-family: 'Anton', sans-serif;
+    font-size: 13px; letter-spacing: 0.1em;
+    color: var(--black);
+  }
+  .ticker-sep { color: rgba(0,0,0,0.3); }
+
+  /* ── SECTION: ROOTS ── */
+  .roots-section {
+    padding: 120px 56px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+
+  .roots-left {}
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em;
+    color: var(--amber); text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: var(--border); max-width: 60px;
+  }
+
+  .roots-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 0.95; color: var(--white);
+    margin-bottom: 32px; letter-spacing: 0.01em;
+  }
+  .roots-title span { color: var(--amber); }
+
+  .roots-body {
+    font-size: 15px; line-height: 1.9;
+    color: rgba(242,237,228,0.65);
+    margin-bottom: 24px;
+  }
+
+  .roots-body strong { color: var(--cream); font-weight: 600; }
+
+  .roots-pullquote {
+    border-left: 2px solid var(--amber);
+    padding: 16px 24px;
+    margin: 28px 0;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16px; font-style: italic;
+    color: rgba(242,237,228,0.75); line-height: 1.7;
+  }
+
+  .roots-right {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 48px 40px;
+    position: relative;
+  }
+
+  .roots-right::before {
+    content: 'ORIGIN STORY';
+    position: absolute; top: -10px; left: 24px;
+    background: var(--panel);
+    padding: 0 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; letter-spacing: 0.16em;
+    color: var(--amber);
+  }
+
+  .origin-item {
+    display: flex; gap: 20px; align-items: flex-start;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .origin-item:last-child { border-bottom: none; }
+  .origin-year {
+    font-family: 'Anton', sans-serif;
+    font-size: 28px; color: var(--amber);
+    line-height: 1; flex-shrink: 0; width: 80px;
+  }
+  .origin-text h4 {
+    font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px;
+  }
+  .origin-text p {
+    font-size: 13px; color: var(--smoke); line-height: 1.6;
+  }
+
+  /* ── MONEYBALL SECTION ── */
+  .moneyball-section {
+    background: var(--cream);
+    color: var(--black);
+    padding: 120px 56px;
+    position: relative; overflow: hidden;
+  }
+
+  .moneyball-bg-text {
+    position: absolute;
+    font-family: 'Anton', sans-serif;
+    font-size: 260px; line-height: 1;
+    color: rgba(0,0,0,0.04);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap; pointer-events: none;
+    letter-spacing: 0.02em;
+  }
+
+  .moneyball-inner {
+    position: relative; z-index: 2;
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .moneyball-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em;
+    color: var(--rust); text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .moneyball-tag::after {
+    content: ''; width: 40px; height: 1px; background: var(--rust);
+  }
+
+  .moneyball-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 0.92; letter-spacing: 0.01em;
+    color: var(--black); margin-bottom: 56px;
+  }
+  .moneyball-title span { color: var(--rust); }
+
+  .moneyball-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .mb-card {
+    padding: 40px 32px;
+    background: rgba(0,0,0,0.04);
+    transition: background 0.25s;
+  }
+  .mb-card:hover { background: rgba(0,0,0,0.08); }
+
+  .mb-card-num {
+    font-family: 'Anton', sans-serif;
+    font-size: 64px; line-height: 1;
+    color: var(--rust); margin-bottom: 8px;
+  }
+  .mb-card-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--black); margin-bottom: 12px;
+  }
+  .mb-card-body {
+    font-size: 14px; line-height: 1.75; color: #444;
+  }
+
+  .moneyball-quote-block {
+    margin-top: 64px;
+    padding: 48px;
+    background: var(--black);
+    color: var(--cream);
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px; align-items: center;
+  }
+
+  .mbq-quote {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 22px; font-style: italic; line-height: 1.55;
+    color: var(--cream);
+  }
+  .mbq-attr {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: 0.1em;
+    color: var(--amber); margin-top: 16px;
+  }
+  .mbq-stat-block {
+    text-align: center; padding: 32px;
+    border: 1px solid rgba(232,160,32,0.2);
+  }
+  .mbq-stat-num {
+    font-family: 'Anton', sans-serif;
+    font-size: 80px; color: var(--amber); line-height: 1;
+  }
+  .mbq-stat-label {
+    font-size: 13px; color: var(--stone); margin-top: 8px; line-height: 1.5;
+  }
+
+  /* ── DATA SECTION ── */
+  .data-section {
+    padding: 120px 56px;
+    background: var(--offblk);
+  }
+
+  .data-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end; margin-bottom: 64px;
+  }
+  .data-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(44px, 5vw, 72px);
+    line-height: 0.95; color: var(--white);
+    letter-spacing: 0.01em;
+  }
+  .data-title span { color: var(--amber); }
+
+  .data-source-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--smoke);
+    text-align: right; max-width: 220px; line-height: 1.6;
+  }
+
+  /* Visual bar chart */
+  .chart-wrap {
+    display: flex; align-items: flex-end; gap: 16px;
+    height: 240px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+  .chart-bar-group {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .chart-bar-pair { display: flex; gap: 4px; align-items: flex-end; width: 100%; justify-content: center; }
+  .chart-bar {
+    width: 28px; border-radius: 2px 2px 0 0;
+    transition: opacity 0.2s;
+    position: relative;
+  }
+  .chart-bar:hover { opacity: 0.8; }
+  .chart-bar.three { background: var(--amber); }
+  .chart-bar.mid   { background: var(--smoke); }
+  .chart-bar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--smoke); text-align: center;
+  }
+
+  .chart-legend {
+    display: flex; gap: 24px; margin-top: 12px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--stone);
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 1px; }
+
+  /* ── CULTURE SECTION ── */
+  .culture-section {
+    padding: 120px 56px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .culture-left {
+    background: var(--black);
+    padding: 80px 56px 80px 56px;
+    border-right: 1px solid var(--border);
+  }
+
+  .culture-right {
+    background: var(--black);
+    padding: 80px 56px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+
+  .culture-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(44px, 4.5vw, 64px);
+    line-height: 0.92; color: var(--white);
+    letter-spacing: 0.01em; margin-bottom: 32px;
+  }
+  .culture-title span { color: var(--amber); }
+
+  .culture-body {
+    font-size: 15px; line-height: 1.9;
+    color: rgba(242,237,228,0.6);
+    margin-bottom: 24px;
+  }
+
+  .quote-card {
+    padding: 28px 32px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    transition: border-color 0.25s;
+  }
+  .quote-card:hover { border-color: var(--amber); }
+
+  .quote-card-text {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16px; font-style: italic;
+    color: var(--cream); line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .quote-card-attr {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: var(--amber);
+  }
+  .quote-card-context {
+    font-size: 12px; color: var(--smoke);
+    margin-top: 6px; line-height: 1.5;
+  }
+
+  /* ── CONCLUSION ── */
+  .conclusion-section {
+    padding: 140px 56px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--black) 0%, #0c0800 100%);
+    position: relative; overflow: hidden;
+  }
+
+  .conclusion-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(232,160,32,0.06) 0%, transparent 70%);
+  }
+
+  .conclusion-inner { position: relative; z-index: 2; }
+
+  .conclusion-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--amber); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 16px; justify-content: center;
+  }
+  .conclusion-label::before, .conclusion-label::after {
+    content: ''; width: 40px; height: 1px; background: var(--amber); opacity: 0.5;
+  }
+
+  .conclusion-title {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 0.92; color: var(--white);
+    margin-bottom: 40px; letter-spacing: 0.01em;
+  }
+  .conclusion-title span { color: var(--amber); display: block; }
+
+  .conclusion-body {
+    max-width: 680px; margin: 0 auto 64px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 18px; line-height: 1.85;
+    color: rgba(242,237,228,0.6); font-style: italic;
+  }
+
+  /* Sources */
+  .sources-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; max-width: 900px; margin: 0 auto;
+    border: 1px solid var(--border);
+  }
+  .source-cell {
+    padding: 20px 24px;
+    background: var(--panel);
+    font-size: 12px; color: var(--smoke); line-height: 1.6;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .source-cell:nth-child(even) { border-right: none; }
+  .source-cell em { color: var(--stone); font-style: italic; }
+
+  .sources-header {
+    font-family: 'Anton', sans-serif;
+    font-size: 22px; letter-spacing: 0.06em;
+    color: var(--amber); margin-bottom: 24px;
+    text-align: left; max-width: 900px; margin: 0 auto 20px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #050505;
+    padding: 28px 56px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-logo {
+    font-family: 'Anton', sans-serif;
+    font-size: 16px; letter-spacing: 0.1em; color: var(--amber);
+  }
+  .footer-info {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--smoke); letter-spacing: 0.06em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-items, .nav-tag { display: none; }
+    .hero-top { flex-direction: column; padding: 60px 28px 0; }
+    .hero-right-block { width: 100%; }
+    .hero-data-strip { grid-template-columns: 1fr 1fr; padding: 0 28px; }
+    .roots-section, .culture-section { grid-template-columns: 1fr; }
+    .moneyball-grid { grid-template-columns: 1fr; }
+    .moneyball-quote-block { grid-template-columns: 1fr; }
+    .data-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .sources-grid { grid-template-columns: 1fr; }
+    .roots-section, .moneyball-section, .data-section, .culture-section, .conclusion-section { padding: 80px 28px; }
+    .culture-left, .culture-right { padding: 60px 28px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-wordmark">NUMBERS IN THE PAINT</div>
+  <ul class="nav-items">
+    <li><a href="#roots">Origins</a></li>
+    <li><a href="#moneyball">Moneyball</a></li>
+    <li><a href="#data">The Data</a></li>
+    <li><a href="#culture">Culture War</a></li>
+  </ul>
+  <div class="nav-tag">ESSAY 2 · CONTEXT</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-top">
+    <div class="hero-title-block" style="flex:1">
+      <div class="hero-label">Historical Context · NBA Analytics</div>
+      <h1 class="hero-title">
+        NUMBERS<br>
+        <span class="line2">IN THE</span><br>
+        <span class="line3">PAINT</span>
+      </h1>
+    </div>
+    <div class="hero-right-block">
+      <p class="hero-intro">
+        The modern NBA looks nothing like it did twenty-five years ago. This transformation didn't begin in basketball — and it didn't happen overnight.
+      </p>
+      <div class="hero-pills">
+        <span class="pill active">1950s Roots</span>
+        <span class="pill">Moneyball 2003</span>
+        <span class="pill">Morey 2007</span>
+        <span class="pill">Culture War</span>
+        <span class="pill">MIT 2025</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-data-strip">
+    <div class="data-cell">
+      <div class="data-cell-index">01</div>
+      <div class="data-cell-year">1950s</div>
+      <div class="data-cell-title">Where It Began</div>
+      <div class="data-cell-desc">WWII operations researchers turn statistical tools toward sport</div>
+    </div>
+    <div class="data-cell">
+      <div class="data-cell-index">02</div>
+      <div class="data-cell-year">2003</div>
+      <div class="data-cell-title">Moneyball Changes Sport</div>
+      <div class="data-cell-desc">Michael Lewis publishes a book that rewires every front office</div>
+    </div>
+    <div class="data-cell">
+      <div class="data-cell-index">03</div>
+      <div class="data-cell-year">44.8</div>
+      <div class="data-cell-title">3-Point Attempts / Game</div>
+      <div class="data-cell-desc">Houston Rockets in 2019 — unimaginable a decade earlier</div>
+    </div>
+    <div class="data-cell">
+      <div class="data-cell-index">04</div>
+      <div class="data-cell-year">+1</div>
+      <div class="data-cell-title">Win Per 0.8 Analyst</div>
+      <div class="data-cell-desc">MIT 2025: analytics investment directly produces wins</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-word">MONEYBALL</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">DARYL MOREY</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">HOUSTON ROCKETS</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">DEATH ZONE</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">THREE POINT REVOLUTION</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">MIT 2025</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">WHO OWNS THE GAME?</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">MONEYBALL</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">DARYL MOREY</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">HOUSTON ROCKETS</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">DEATH ZONE</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">THREE POINT REVOLUTION</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">MIT 2025</span><span class="ticker-sep"> · </span>
+    <span class="ticker-word">WHO OWNS THE GAME?</span><span class="ticker-sep"> · </span>
+  </div>
+</div>
+
+<!-- ROOTS SECTION -->
+<section id="roots" class="roots-section">
+  <div class="roots-left reveal">
+    <div class="section-label">Chapter 01 · Origins</div>
+    <h2 class="roots-title">The Roots Run <span>Deeper</span> Than Basketball</h2>
+    <p class="roots-body">
+      Long before anyone in the NBA had heard the word <strong>"Moreyball,"</strong> the seeds of the analytics revolution were being planted in an entirely different arena — World War II.
+    </p>
+    <p class="roots-body">
+      Operations researchers — scientists who had applied statistical methods to military logistics and strategy during the war — began turning those same tools toward athletic competition in the 1950s. According to the <strong>Smithsonian Institution</strong>, the sports analytics community grew from three overlapping groups: operations researchers, freelance sports journalists, and internet hobbyists.
+    </p>
+    <blockquote class="roots-pullquote">
+      "The tension between data and tradition in sports is not a recent invention — it is a conflict that intensified slowly across generations before exploding into public view."
+    </blockquote>
+    <p class="roots-body">
+      This history matters. The conflict you see on the court today was not created by any single executive or algorithm. It was fifty years in the making.
+    </p>
+  </div>
+
+  <div class="roots-right reveal">
+    <div class="origin-item">
+      <div class="origin-year">1940s</div>
+      <div class="origin-text">
+        <h4>Statistical Warfare</h4>
+        <p>WWII operations researchers develop the mathematical toolkit that will eventually reach professional sport</p>
+      </div>
+    </div>
+    <div class="origin-item">
+      <div class="origin-year">1950s</div>
+      <div class="origin-text">
+        <h4>First Crossover</h4>
+        <p>Researchers begin applying statistical models to athletic performance. The sports analytics community quietly forms</p>
+      </div>
+    </div>
+    <div class="origin-item">
+      <div class="origin-year">1980s</div>
+      <div class="origin-text">
+        <h4>Bill James & Sabermetrics</h4>
+        <p>Baseball's statistical revolution begins. A generation of fans and journalists start questioning what the traditional numbers actually measure</p>
+      </div>
+    </div>
+    <div class="origin-item">
+      <div class="origin-year">2003</div>
+      <div class="origin-text">
+        <h4>Moneyball — The Tipping Point</h4>
+        <p>Michael Lewis publishes <em>Moneyball</em>. Billy Beane's Oakland A's prove small-budget data beats big-budget instinct. Every sport pays attention</p>
+      </div>
+    </div>
+    <div class="origin-item">
+      <div class="origin-year">2007</div>
+      <div class="origin-text">
+        <h4>Daryl Morey Arrives in Houston</h4>
+        <p>The MIT Sloan Sports Analytics Conference launches its first conference. Basketball's reckoning is now inevitable</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MONEYBALL SECTION -->
+<section id="moneyball" class="moneyball-section">
+  <div class="moneyball-bg-text">MOREY</div>
+  <div class="moneyball-inner">
+    <div class="moneyball-tag">Chapter 02 · The Architect</div>
+    <h2 class="moneyball-title">One Man<br><span>Rebuilt an Offense</span><br>Around Math</h2>
+
+    <div class="moneyball-grid">
+      <div class="mb-card reveal">
+        <div class="mb-card-num">82%</div>
+        <div class="mb-card-title">Rockets' shots from optimal zones</div>
+        <div class="mb-card-body">Under Daryl Morey, Houston took 82% of their field goal attempts either from three-point range or inside the restricted area. The mid-range shot was systematically eliminated. Source: Harvard Business School</div>
+      </div>
+      <div class="mb-card reveal">
+        <div class="mb-card-num">44.8</div>
+        <div class="mb-card-title">3-point attempts per game (2019)</div>
+        <div class="mb-card-body">By 2019, the Rockets were averaging 44.8 three-point attempts per game — a number that would have been unimaginable just a decade earlier. The entire league followed. Source: Abraham Gibson, Age of Revolutions</div>
+      </div>
+      <div class="mb-card reveal">
+        <div class="mb-card-num">+1</div>
+        <div class="mb-card-title">Win per 0.8 additional analyst</div>
+        <div class="mb-card-body">A 2025 MIT study of all 30 NBA teams across 14 seasons found analytics investment directly produces wins — even after controlling for salary, injuries, and coaching experience. Source: Jennifer Chu, MIT News</div>
+      </div>
+    </div>
+
+    <div class="moneyball-quote-block reveal">
+      <div>
+        <p class="mbq-quote">"What Morey started as one team's strategy had become the operating framework of the entire league — and like any operating system, it reshaped everything running on top of it, including the players themselves."</p>
+        <p class="mbq-attr">— Essay 2: Context Analysis</p>
+      </div>
+      <div class="mbq-stat-block">
+        <div class="mbq-stat-num">13<span style="font-size:0.4em; color: var(--stone);">yrs</span></div>
+        <div class="mbq-stat-label">Morey's tenure with Houston<br>2nd-best regular season record in the NBA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA VISUALIZATION SECTION -->
+<section id="data" class="data-section">
+  <div class="data-header reveal">
+    <div>
+      <div class="section-label" style="color: var(--amber);">Chapter 03 · The Numbers</div>
+      <h2 class="data-title">The League<br><span>Followed</span> the Data</h2>
+    </div>
+    <div class="data-source-note">
+      Data represents league-wide shot distribution trends<br>
+      Source: Bloyce & Carter, Sport in Society, 2023
+    </div>
+  </div>
+
+  <!-- Visual bar chart - NBA shot distribution over time -->
+  <div class="reveal">
+    <div class="chart-wrap">
+      <!-- 1992 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 35px;" title="3PT: 8.7%"></div>
+          <div class="chart-bar mid"   style="height: 145px;" title="Mid: 36%"></div>
+        </div>
+        <div class="chart-bar-label">1992</div>
+      </div>
+      <!-- 1997 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 55px;"></div>
+          <div class="chart-bar mid"   style="height: 152px;"></div>
+        </div>
+        <div class="chart-bar-label">1997</div>
+      </div>
+      <!-- 2000 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 60px;"></div>
+          <div class="chart-bar mid"   style="height: 152px;"></div>
+        </div>
+        <div class="chart-bar-label">2000</div>
+      </div>
+      <!-- 2005 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 76px;"></div>
+          <div class="chart-bar mid"   style="height: 136px;"></div>
+        </div>
+        <div class="chart-bar-label">2005</div>
+      </div>
+      <!-- 2010 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 96px;"></div>
+          <div class="chart-bar mid"   style="height: 120px;"></div>
+        </div>
+        <div class="chart-bar-label">2010</div>
+      </div>
+      <!-- 2013 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 120px;"></div>
+          <div class="chart-bar mid"   style="height: 104px;"></div>
+        </div>
+        <div class="chart-bar-label">2013</div>
+      </div>
+      <!-- 2016 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 148px;"></div>
+          <div class="chart-bar mid"   style="height: 84px;"></div>
+        </div>
+        <div class="chart-bar-label">2016</div>
+      </div>
+      <!-- 2019 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 172px;"></div>
+          <div class="chart-bar mid"   style="height: 68px;"></div>
+        </div>
+        <div class="chart-bar-label">2019</div>
+      </div>
+      <!-- 2022-23 -->
+      <div class="chart-bar-group">
+        <div class="chart-bar-pair">
+          <div class="chart-bar three" style="height: 200px;"></div>
+          <div class="chart-bar mid"   style="height: 52px;"></div>
+        </div>
+        <div class="chart-bar-label">2022–23</div>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: var(--amber);"></div>
+        Three-Point Attempts (% of all shots)
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: var(--smoke);"></div>
+        Mid-Range Attempts (% of all shots)
+      </div>
+    </div>
+
+    <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(3,1fr); gap: 1px;">
+      <div style="background: var(--panel); padding: 32px; border: 1px solid var(--border);">
+        <div style="font-family: 'Anton', sans-serif; font-size: 48px; color: var(--amber);">8.7%</div>
+        <div style="font-size: 13px; color: var(--stone); margin-top: 4px;">3-point share in 1992</div>
+      </div>
+      <div style="background: var(--panel); padding: 32px; border: 1px solid var(--border); border-left: none; border-right: none;">
+        <div style="font-family: 'Anton', sans-serif; font-size: 48px; color: var(--amber);">38.7%</div>
+        <div style="font-size: 13px; color: var(--stone); margin-top: 4px;">3-point share in 2022–23</div>
+      </div>
+      <div style="background: var(--panel); padding: 32px; border: 1px solid var(--border);">
+        <div style="font-family: 'Anton', sans-serif; font-size: 48px; color: var(--rust);">↓50%</div>
+        <div style="font-size: 13px; color: var(--stone); margin-top: 4px;">Mid-range decline since 2000</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CULTURE WAR -->
+<section id="culture" class="culture-section">
+  <div class="culture-left reveal">
+    <div class="section-label">Chapter 04 · The Clash</div>
+    <h2 class="culture-title">When the <span>Spreadsheet</span> Meets the Soul</h2>
+    <p class="culture-body">
+      As data reshaped NBA front offices, it produced a visible and growing tension on the floor. Players who had spent their entire lives mastering skills that analytics now labeled <strong style="color: var(--rust);">"inefficient"</strong> found themselves caught between their training and their employer's spreadsheets.
+    </p>
+    <p class="culture-body">
+      The cultural clash reflects something deeper than a dispute about shot selection. It is a debate about whether the soul of the game belongs to the people who <em>play</em> it — or the people who <em>measure</em> it.
+    </p>
+    <p class="culture-body">
+      Former NBA star Charles Barkley called analytics advocates <strong style="color: var(--cream);">"idiots who believe in analytics"</strong> on live television — blunt language, but reflecting a genuine generational divide between people who learned basketball through feel and those who learned it through formulas.
+    </p>
+  </div>
+
+  <div class="culture-right reveal">
+    <div class="section-label">Voices From the Floor</div>
+
+    <div class="quote-card">
+      <p class="quote-card-text">"Either too afraid to break from the trend or not creative enough to design an offense that showcases both the long-distance shooter and the mid-range specialist."</p>
+      <p class="quote-card-attr">— Sekou Smith · NBA.com</p>
+      <p class="quote-card-context">On how analytics thinking dominated coaching decisions in the modern NBA</p>
+    </div>
+
+    <div class="quote-card">
+      <p class="quote-card-text">"When organizations over-rely on data models, players follow patterns instead of playing naturally — producing a game fans experience as more predictable and less emotional."</p>
+      <p class="quote-card-attr">— Guillermo Alaman Requena · Medium, 2024</p>
+      <p class="quote-card-context">On the fan experience in the analytics era</p>
+    </div>
+
+    <div class="quote-card">
+      <p class="quote-card-text">"The debate is whether the soul of the game belongs to the people who play it — or the people who measure it."</p>
+      <p class="quote-card-attr">— Essay 2: Context Analysis</p>
+      <p class="quote-card-context">The central question the analytics era has forced upon basketball</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section class="conclusion-section">
+  <div class="conclusion-inner">
+    <div class="conclusion-label">The Takeaway</div>
+    <h2 class="conclusion-title reveal">
+      The Stakes Are Real.
+      <span>The Roots Run Deep.</span>
+    </h2>
+    <p class="conclusion-body reveal">
+      The modern NBA — with its three-point barrages and spreadsheet-driven offenses — is the direct product of fifty years of statistical thinking, one watershed moment in baseball, and one general manager's willingness to rebuild an entire offense around math. The question of what basketball is supposed to be is far from settled.
+    </p>
+
+    <div class="sources-header reveal">Sources</div>
+    <div class="sources-grid reveal">
+      <div class="source-cell">Bloyce, D. & Carter, R.J.F. "The Iron Cage of Efficiency." <em>Sport in Society</em>, vol. 26, no. 11, 2023, pp. 1785–1801.</div>
+      <div class="source-cell">Chu, Jennifer. "Basketball Analytics Investment Is Key to NBA Wins." <em>MIT News</em>, 25 Mar. 2025.</div>
+      <div class="source-cell">Gibson, Abraham. "Data Science and the 3-Point Revolution in the NBA." <em>Age of Revolutions</em>, 2019.</div>
+      <div class="source-cell">"Moreyball: The Houston Rockets and Analytics." <em>Harvard Business School Digital Initiative</em>, 2018.</div>
+      <div class="source-cell">Requena, G.A. "The Controversial Use of AI in Sports." <em>Medium</em>, 2024.</div>
+      <div class="source-cell">Smith, Sekou. "DeMar DeRozan's Old-School Game Near Extinction." <em>NBA.com</em>, 2022.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NUMBERS IN THE PAINT</div>
+  <div class="footer-info">Hayyuu Gelchu · English 1102 · Georgia State University · 2026</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('in'), i * 90);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Pills interaction
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
