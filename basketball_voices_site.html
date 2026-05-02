@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Counting Points & Losing the Game | The Voices Behind Basketball's Analytics War</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=Oxanium:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --void:     #060608;
+    --deep:     #0E0E12;
+    --surface:  #14141A;
+    --lift:     #1C1C24;
+    --rim:      #2A2A36;
+    --gold:     #D4A843;
+    --gold2:    #F0C866;
+    --green:    #2ECC71;
+    --red:      #E74C3C;
+    --blue:     #3498DB;
+    --fog:      #7A7A8C;
+    --silver:   #B0B0C0;
+    --light:    #E8E8F0;
+    --white:    #F8F8FC;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--light);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 2px; }
+  ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 52px;
+    background: rgba(6,6,8,0.96);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--rim);
+  }
+  .nav-logo {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-size: 12px; font-weight: 400; letter-spacing: 0.08em;
+    color: var(--fog); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-essay-tag {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1px solid var(--rim);
+    color: var(--fog);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    padding-top: 60px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    position: relative; overflow: hidden;
+  }
+
+  /* Noise overlay */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .hero-glow {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 55% 65% at 50% 30%, rgba(212,168,67,0.08) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(52,152,219,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 35% 35% at 90% 70%, rgba(231,76,60,0.05) 0%, transparent 60%);
+  }
+
+  .hero-main {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 80px 52px 40px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 11px; font-weight: 400; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 36px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .hero-eyebrow span { width: 40px; height: 1px; background: var(--gold); opacity: 0.5; display: block; }
+
+  .hero-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(52px, 7.5vw, 108px);
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 16px;
+    max-width: 1000px;
+  }
+  .hero-title em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(18px, 2.5vw, 26px);
+    font-style: italic;
+    color: var(--fog);
+    margin-bottom: 48px;
+    max-width: 600px;
+  }
+
+  .hero-intro-text {
+    max-width: 700px;
+    font-size: 17px; line-height: 1.85;
+    color: rgba(232,232,240,0.6);
+    margin-bottom: 56px;
+  }
+
+  /* Three voice indicators */
+  .voice-indicators {
+    display: flex; gap: 2px;
+    margin-bottom: 64px;
+  }
+  .vi-item {
+    padding: 18px 32px;
+    background: var(--surface);
+    border: 1px solid var(--rim);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    flex: 1;
+  }
+  .vi-item:hover { border-color: var(--gold); }
+  .vi-item.traditionalist:hover,
+  .vi-item.traditionalist.active { background: rgba(231,76,60,0.1); border-color: var(--red); }
+  .vi-item.analyst:hover,
+  .vi-item.analyst.active { background: rgba(52,152,219,0.1); border-color: var(--blue); }
+  .vi-item.fan:hover,
+  .vi-item.fan.active { background: rgba(46,204,113,0.1); border-color: var(--green); }
+
+  .vi-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin: 0 auto 10px;
+  }
+  .traditionalist .vi-dot { background: var(--red); }
+  .analyst .vi-dot        { background: var(--blue); }
+  .fan .vi-dot            { background: var(--green); }
+
+  .vi-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fog);
+    transition: color 0.25s;
+  }
+  .vi-item:hover .vi-label { color: var(--light); }
+  .vi-desc {
+    font-size: 12px; color: var(--fog); margin-top: 6px; line-height: 1.4;
+  }
+
+  /* Hero bottom bar */
+  .hero-bottom {
+    position: relative; z-index: 2;
+    border-top: 1px solid var(--rim);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+  }
+  .hb-cell {
+    padding: 24px 36px;
+    border-right: 1px solid var(--rim);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .hb-cell:last-child { border-right: none; }
+  .hb-num {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--gold); line-height: 1;
+  }
+  .hb-text { font-size: 13px; color: var(--fog); line-height: 1.5; }
+  .hb-text strong { color: var(--light); font-weight: 500; display: block; }
+
+  /* ── TICKER ── */
+  .ticker {
+    overflow: hidden; white-space: nowrap;
+    background: var(--gold);
+    padding: 9px 0;
+  }
+  .ticker-rail {
+    display: inline-flex; gap: 60px;
+    animation: rail 30s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--void);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .ticker-item::before { content: '◆'; font-size: 6px; opacity: 0.5; }
+
+  /* ── VOICE SECTIONS ── */
+
+  /* Shared section wrapper */
+  .voice-section {
+    padding: 120px 52px;
+    position: relative; overflow: hidden;
+  }
+
+  .vs-header {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 48px; align-items: start;
+    margin-bottom: 72px;
+  }
+
+  .vs-number {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 120px; font-weight: 800; line-height: 1;
+    opacity: 0.07; line-height: 0.9;
+    user-select: none;
+  }
+
+  .vs-header-right {}
+
+  .vs-tag {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.22em;
+    text-transform: uppercase; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .vs-tag::before { content: ''; width: 20px; height: 1px; }
+
+  .vs-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(40px, 4.5vw, 62px);
+    line-height: 1.05; color: var(--white);
+    margin-bottom: 20px;
+  }
+  .vs-desc {
+    font-size: 16px; color: var(--fog); line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ── VOICE 1: TRADITIONALISTS ── */
+  .voice-traditional {
+    background: var(--deep);
+    border-top: 3px solid var(--red);
+  }
+
+  .voice-traditional .vs-number { color: var(--red); }
+  .voice-traditional .vs-tag { color: var(--red); }
+  .voice-traditional .vs-tag::before { background: var(--red); }
+
+  .trad-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .trad-main {
+    background: var(--surface);
+    padding: 52px 44px;
+  }
+
+  .trad-body {
+    font-size: 15px; line-height: 1.9;
+    color: rgba(232,232,240,0.65);
+    margin-bottom: 28px;
+  }
+  .trad-body strong { color: var(--light); font-weight: 500; }
+
+  .speaker-card {
+    margin-top: 36px;
+    border: 1px solid var(--rim);
+    overflow: hidden;
+  }
+  .speaker-header {
+    padding: 16px 20px;
+    background: var(--lift);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .speaker-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Oxanium', sans-serif;
+    font-size: 14px; font-weight: 700; color: var(--void);
+    flex-shrink: 0;
+  }
+  .speaker-info-name {
+    font-size: 14px; font-weight: 600; color: var(--light);
+  }
+  .speaker-info-title {
+    font-size: 12px; color: var(--fog); margin-top: 2px;
+  }
+  .speaker-quote {
+    padding: 20px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 17px; font-style: italic; line-height: 1.65;
+    color: var(--light);
+    border-left: 3px solid;
+    margin: 0;
+  }
+  .speaker-context {
+    padding: 12px 20px;
+    font-size: 12px; color: var(--fog); line-height: 1.5;
+    background: var(--lift);
+  }
+
+  .trad-sidebar {
+    background: var(--surface);
+    padding: 52px 44px;
+    border-left: 1px solid var(--rim);
+    display: flex; flex-direction: column; gap: 28px;
+  }
+
+  .insight-box {
+    padding: 24px;
+    border: 1px solid var(--rim);
+    border-radius: 2px;
+  }
+  .insight-label {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--fog);
+    margin-bottom: 10px;
+  }
+  .insight-text {
+    font-size: 14px; line-height: 1.7; color: rgba(232,232,240,0.75);
+  }
+  .insight-text strong { color: var(--light); }
+
+  /* ── VOICE 2: ANALYSTS ── */
+  .voice-analyst {
+    background: var(--void);
+    border-top: 3px solid var(--blue);
+  }
+
+  .voice-analyst .vs-number { color: var(--blue); }
+  .voice-analyst .vs-tag { color: var(--blue); }
+  .voice-analyst .vs-tag::before { background: var(--blue); }
+
+  .analyst-layout {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px; align-items: start;
+  }
+
+  .analyst-left {}
+
+  .analyst-body {
+    font-size: 15px; line-height: 1.9;
+    color: rgba(232,232,240,0.65);
+    margin-bottom: 28px;
+  }
+  .analyst-body strong { color: var(--light); }
+
+  /* MIT stat highlight */
+  .mit-block {
+    background: var(--surface);
+    border: 1px solid var(--blue);
+    border-left: 4px solid var(--blue);
+    padding: 32px 28px;
+    margin: 28px 0;
+  }
+  .mit-num {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 56px; font-weight: 800;
+    color: var(--blue); line-height: 1;
+    margin-bottom: 8px;
+  }
+  .mit-label {
+    font-size: 14px; font-weight: 500; color: var(--light);
+    margin-bottom: 8px;
+  }
+  .mit-desc {
+    font-size: 13px; color: var(--fog); line-height: 1.6;
+  }
+  .mit-source {
+    font-size: 11px; color: var(--rim);
+    margin-top: 12px; letter-spacing: 0.06em;
+  }
+
+  .analyst-right {}
+
+  .argument-list {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .argument-item {
+    padding: 24px 28px;
+    background: var(--surface);
+    border: 1px solid var(--rim);
+    display: flex; gap: 20px; align-items: flex-start;
+    transition: border-color 0.25s;
+  }
+  .argument-item:hover { border-color: var(--blue); }
+  .argument-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(52,152,219,0.12);
+    border: 1px solid rgba(52,152,219,0.3);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Oxanium', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--blue);
+  }
+  .argument-text {
+    font-size: 14px; line-height: 1.7; color: rgba(232,232,240,0.75);
+  }
+  .argument-text strong { color: var(--light); display: block; margin-bottom: 4px; font-size: 15px; }
+
+  .analyst-limit {
+    margin-top: 32px; padding: 24px 28px;
+    background: rgba(212,168,67,0.06);
+    border: 1px solid rgba(212,168,67,0.2);
+  }
+  .analyst-limit-label {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 9px; font-weight: 600; letter-spacing: 0.18em;
+    color: var(--gold); margin-bottom: 8px;
+  }
+  .analyst-limit-text {
+    font-size: 14px; line-height: 1.7; color: rgba(232,232,240,0.6);
+    font-style: italic;
+  }
+
+  /* ── VOICE 3: FANS ── */
+  .voice-fan {
+    background: var(--deep);
+    border-top: 3px solid var(--green);
+  }
+
+  .voice-fan .vs-number { color: var(--green); }
+  .voice-fan .vs-tag { color: var(--green); }
+  .voice-fan .vs-tag::before { background: var(--green); }
+
+  .fan-layout {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .fan-left {
+    background: var(--surface);
+    padding: 52px 44px;
+  }
+
+  .fan-body {
+    font-size: 15px; line-height: 1.9;
+    color: rgba(232,232,240,0.65);
+    margin-bottom: 28px;
+  }
+  .fan-body strong { color: var(--light); }
+
+  .video-embed-mock {
+    background: var(--lift);
+    border: 1px solid var(--rim);
+    padding: 0;
+    margin-top: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .video-header {
+    background: var(--surface);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--rim);
+  }
+  .video-play {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .video-play svg { width: 12px; height: 12px; fill: white; }
+  .video-info-title {
+    font-size: 13px; font-weight: 500; color: var(--light); line-height: 1.3;
+  }
+  .video-info-channel {
+    font-size: 11px; color: var(--fog); margin-top: 2px;
+  }
+  .video-body {
+    padding: 20px;
+  }
+  .video-pullquote {
+    font-family: 'Instrument Serif', serif;
+    font-size: 16px; font-style: italic; line-height: 1.65;
+    color: var(--light);
+    border-left: 3px solid var(--green);
+    padding-left: 18px;
+    margin-bottom: 12px;
+  }
+  .video-analysis {
+    font-size: 13px; color: var(--fog); line-height: 1.6;
+  }
+  .video-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    color: var(--green); text-decoration: none;
+    border: 1px solid rgba(46,204,113,0.3);
+    padding: 8px 16px;
+    transition: all 0.2s;
+  }
+  .video-link:hover { background: rgba(46,204,113,0.08); }
+
+  .fan-right {
+    background: var(--surface);
+    padding: 52px 44px;
+    border-left: 1px solid var(--rim);
+  }
+
+  .tension-meter {
+    margin-bottom: 36px;
+  }
+  .tm-label {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--fog);
+    margin-bottom: 16px;
+  }
+  .tm-item {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+  }
+  .tm-name { font-size: 13px; color: var(--silver); width: 120px; flex-shrink: 0; }
+  .tm-bar-track {
+    flex: 1; height: 4px; background: var(--rim); border-radius: 2px; overflow: hidden;
+  }
+  .tm-bar-fill { height: 100%; border-radius: 2px; }
+  .tm-pct { font-family: 'Oxanium', sans-serif; font-size: 13px; font-weight: 600; width: 36px; text-align: right; }
+
+  .stat-highlight {
+    padding: 28px;
+    background: var(--lift);
+    border: 1px solid var(--rim);
+    margin-top: 8px;
+  }
+  .sh-num {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 52px; font-weight: 800; line-height: 1;
+    color: var(--green);
+  }
+  .sh-label { font-size: 14px; color: var(--light); margin: 6px 0 8px; font-weight: 500; }
+  .sh-desc { font-size: 13px; color: var(--fog); line-height: 1.6; }
+
+  /* ── THE QUESTION ── */
+  .question-section {
+    padding: 140px 52px;
+    background: var(--void);
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .question-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(212,168,67,0.07) 0%, transparent 65%);
+  }
+
+  .question-inner { position: relative; z-index: 2; }
+
+  .q-tag {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.24em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px; justify-content: center;
+  }
+  .q-tag span { width: 36px; height: 1px; background: var(--gold); opacity: 0.4; display: block; }
+
+  .q-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(44px, 6vw, 84px);
+    line-height: 1.08; color: var(--white);
+    margin-bottom: 48px; max-width: 900px; margin-left: auto; margin-right: auto;
+  }
+  .q-title em { font-style: italic; color: var(--gold); }
+
+  .q-body {
+    max-width: 680px; margin: 0 auto 64px;
+    font-size: 17px; line-height: 1.85;
+    color: rgba(232,232,240,0.55);
+    font-family: 'Instrument Serif', serif; font-style: italic;
+  }
+
+  /* Three column conclusion grid */
+  .conclusion-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2px; max-width: 1000px; margin: 0 auto;
+  }
+  .cg-card {
+    padding: 40px 32px;
+    background: var(--surface);
+    border: 1px solid var(--rim);
+    text-align: left;
+    transition: border-color 0.25s;
+  }
+  .cg-card:hover { border-color: var(--gold); }
+  .cg-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    font-size: 18px;
+  }
+  .cg-title {
+    font-size: 15px; font-weight: 600; color: var(--light);
+    margin-bottom: 12px;
+  }
+  .cg-text { font-size: 13px; color: var(--fog); line-height: 1.7; }
+
+  /* ── SOURCES ── */
+  .sources-section {
+    background: var(--deep);
+    padding: 80px 52px;
+    border-top: 1px solid var(--rim);
+  }
+
+  .src-title {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 18px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--gold); margin-bottom: 28px;
+  }
+  .src-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    border: 1px solid var(--rim);
+  }
+  .src-item {
+    padding: 18px 24px;
+    background: var(--surface);
+    font-size: 12px; color: var(--fog); line-height: 1.65;
+    border-right: 1px solid var(--rim);
+    border-bottom: 1px solid var(--rim);
+  }
+  .src-item:nth-child(even) { border-right: none; }
+  .src-item em { color: var(--silver); font-style: italic; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 24px 52px;
+    background: #030304;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--rim);
+  }
+  .footer-logo {
+    font-family: 'Oxanium', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+  .footer-meta {
+    font-size: 11px; color: var(--fog); letter-spacing: 0.06em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes rail {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links, .nav-essay-tag { display: none; }
+    .hero-main { padding: 60px 24px 32px; }
+    .hero-bottom { grid-template-columns: 1fr; }
+    .hb-cell { border-right: none; border-bottom: 1px solid var(--rim); }
+    .voice-section { padding: 80px 24px; }
+    .vs-header { grid-template-columns: 1fr; gap: 0; }
+    .vs-number { font-size: 60px; }
+    .trad-grid, .analyst-layout, .fan-layout { grid-template-columns: 1fr; }
+    .trad-sidebar, .fan-right { border-left: none; border-top: 1px solid var(--rim); }
+    .conclusion-grid { grid-template-columns: 1fr; }
+    .question-section { padding: 80px 24px; }
+    .sources-section { padding: 60px 24px; }
+    .src-grid { grid-template-columns: 1fr; }
+    .src-item { border-right: none; }
+    footer { flex-direction: column; gap: 10px; text-align: center; padding: 20px; }
+    .voice-indicators { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Counting Points &amp; Losing the Game</div>
+  <ul class="nav-links">
+    <li><a href="#traditionalists">Traditionalists</a></li>
+    <li><a href="#analysts">Analysts</a></li>
+    <li><a href="#fans">Fans</a></li>
+    <li><a href="#question">The Question</a></li>
+  </ul>
+  <div class="nav-essay-tag">Essay 3 · Voices</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+
+  <div class="hero-main">
+    <div class="hero-eyebrow">
+      <span></span>
+      Basketball · Analytics · Human Cost
+      <span></span>
+    </div>
+
+    <h1 class="hero-title">
+      Counting Points &amp;<br><em>Losing the Game</em>
+    </h1>
+
+    <p class="hero-subtitle">The Voices Behind Basketball's Analytics War</p>
+
+    <p class="hero-intro-text">
+      Every controversy has a cast of characters. The analytics debate is no different. Three distinct voices — players, data professionals, and fans — disagree not just about strategy, but about what basketball is <em>for</em>.
+    </p>
+
+    <div class="voice-indicators">
+      <div class="vi-item traditionalist active">
+        <div class="vi-dot"></div>
+        <div class="vi-label">The Traditionalists</div>
+        <div class="vi-desc">Players & former stars who lived the shift</div>
+      </div>
+      <div class="vi-item analyst">
+        <div class="vi-dot"></div>
+        <div class="vi-label">The Analysts</div>
+        <div class="vi-desc">Data professionals & front offices</div>
+      </div>
+      <div class="vi-item fan">
+        <div class="vi-dot"></div>
+        <div class="vi-label">The Fans</div>
+        <div class="vi-desc">Cultural observers caught in between</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hb-cell">
+      <div class="hb-num">3</div>
+      <div class="hb-text">
+        <strong>Distinct Voices</strong>
+        Traditionalists, Analysts, Fans — none fully agreeing with the others
+      </div>
+    </div>
+    <div class="hb-cell">
+      <div class="hb-num">0.8</div>
+      <div class="hb-text">
+        <strong>Analysts per Win</strong>
+        MIT 2025: every 0.8 additional analysts = 1 more win per season
+      </div>
+    </div>
+    <div class="hb-cell">
+      <div class="hb-num">13/16</div>
+      <div class="hb-text">
+        <strong>Most Efficient Offenses Ever</strong>
+        2023–24 season — yet fan complaints about predictability persisted
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-rail">
+    <span class="ticker-item">SHANE BATTIER: "I LOST ALL MY CREATIVITY"</span>
+    <span class="ticker-item">CHARLES BARKLEY CALLS ANALYTICS "IDIOTS"</span>
+    <span class="ticker-item">MIT: DATA = WINS</span>
+    <span class="ticker-item">FANS: "THE GAME FEELS ENGINEERED"</span>
+    <span class="ticker-item">WHO GETS TO DECIDE WHAT BASKETBALL IS FOR?</span>
+    <span class="ticker-item">SHANE BATTIER: "I LOST ALL MY CREATIVITY"</span>
+    <span class="ticker-item">CHARLES BARKLEY CALLS ANALYTICS "IDIOTS"</span>
+    <span class="ticker-item">MIT: DATA = WINS</span>
+    <span class="ticker-item">FANS: "THE GAME FEELS ENGINEERED"</span>
+    <span class="ticker-item">WHO GETS TO DECIDE WHAT BASKETBALL IS FOR?</span>
+  </div>
+</div>
+
+<!-- VOICE 1: TRADITIONALISTS -->
+<section id="traditionalists" class="voice-section voice-traditional">
+  <div class="vs-header reveal">
+    <div class="vs-number">01</div>
+    <div class="vs-header-right">
+      <div class="vs-tag">Voice One</div>
+      <h2 class="vs-title">The Traditionalists:<br>Players Who Lived It</h2>
+      <p class="vs-desc">This voice matters because it comes from inside the game. People who felt the shift firsthand carry an authority no statistic can replace.</p>
+    </div>
+  </div>
+
+  <div class="trad-grid">
+    <div class="trad-main reveal">
+      <p class="trad-body">
+        The loudest and most emotionally powerful voice in the analytics debate belongs to the players and former stars who argue that data-driven coaching has come at a <strong>personal and creative cost</strong>. Their testimony is important precisely because it cannot be dismissed as ignorance — some of them believed in analytics, and still felt its limits.
+      </p>
+      <p class="trad-body">
+        NBA veteran Shane Battier was not an analytics skeptic. He was a believer — and he still admitted on record that following the data had narrowed his game to a single dimension. That honest contradiction is what makes the traditionalist voice so difficult to dismiss.
+      </p>
+      <p class="trad-body">
+        Charles Barkley represents a different strand of the same voice — louder, blunter, less nuanced. His frustration is not really about statistics. It is about what basketball is supposed to <strong>mean</strong>, and who gets to define that.
+      </p>
+
+      <div class="speaker-card">
+        <div class="speaker-header">
+          <div class="speaker-avatar" style="background: var(--red);">SB</div>
+          <div>
+            <div class="speaker-info-name">Shane Battier</div>
+            <div class="speaker-info-title">NBA Veteran · 2015 MIT Sloan Sports Analytics Conference</div>
+          </div>
+        </div>
+        <blockquote class="speaker-quote" style="border-color: var(--red);">
+          "I became very conscious of what was good and what was bad. I lost all of my creativity. I made one non-paint, two-point jumper" in an entire season.
+        </blockquote>
+        <div class="speaker-context">Battier was himself an analytics advocate — making his admission about lost creativity all the more striking as evidence of the system's limits.</div>
+      </div>
+
+      <div class="speaker-card" style="margin-top: 16px;">
+        <div class="speaker-header">
+          <div class="speaker-avatar" style="background: var(--gold);">CB</div>
+          <div>
+            <div class="speaker-info-name">Charles Barkley</div>
+            <div class="speaker-info-title">NBA Hall of Famer · Live Television</div>
+          </div>
+        </div>
+        <blockquote class="speaker-quote" style="border-color: var(--gold);">
+          "Idiots who believe in analytics."
+        </blockquote>
+        <div class="speaker-context">Barkley's blunt dismissal reflects a genuine generational divide — a generation who built their identities around skills the data now dismisses. Source: Basketball Network, 2024.</div>
+      </div>
+    </div>
+
+    <div class="trad-sidebar reveal">
+      <div class="insight-box">
+        <div class="insight-label">What This Voice Reveals</div>
+        <div class="insight-text">Analytics can <strong>optimize a player's efficiency</strong> while simultaneously narrowing the range of what that player is willing to attempt. These are not the same thing.</div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-label">The Core Argument</div>
+        <div class="insight-text">Measuring efficiency <strong>cannot capture everything</strong> that makes the game matter to the people who play and watch it. Numbers have a ceiling.</div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-label">Why It Matters</div>
+        <div class="insight-text">This is not nostalgia. This is about the <strong>careers and identities</strong> of athletes who trained for years — only to be told their strengths don't register on a spreadsheet.</div>
+      </div>
+      <div class="insight-box">
+        <div class="insight-label">Its Weakness</div>
+        <div class="insight-text">The traditionalist argument is most powerful emotionally, and least powerful evidentially. Feeling that something is lost is not the same as proving it is.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICE 2: ANALYSTS -->
+<section id="analysts" class="voice-section voice-analyst">
+  <div class="vs-header reveal">
+    <div class="vs-number">02</div>
+    <div class="vs-header-right">
+      <div class="vs-tag">Voice Two</div>
+      <h2 class="vs-title">The Analysts:<br>The Language of Evidence</h2>
+      <p class="vs-desc">The pro-analytics voice speaks in numbers — and its arguments are harder to dismiss than its critics would like. The data is real. The wins are real.</p>
+    </div>
+  </div>
+
+  <div class="analyst-layout">
+    <div class="analyst-left reveal">
+      <p class="analyst-body">
+        Data professionals and front office executives argue that statistical analysis is not an attack on creativity — it is <strong>a tool for making better decisions</strong> in a billion-dollar industry where being wrong is expensive. Their argument rests on verifiable outcomes, not feelings.
+      </p>
+
+      <div class="mit-block">
+        <div class="mit-num">+1</div>
+        <div class="mit-label">Additional win per 0.8 additional analysts hired</div>
+        <div class="mit-desc">A 2025 MIT study analyzed all 30 NBA teams across 14 seasons. Even after controlling for roster salary, player injuries, coaching continuity, and player experience — analytics investment produced measurable wins.</div>
+        <div class="mit-source">Source: Jennifer Chu · MIT News · Journal of Sports Economics, 2025</div>
+      </div>
+
+      <p class="analyst-body">
+        Daryl Morey — the architect of analytics-first NBA strategy — pushed back against the characterization that data dehumanizes the game. No serious analyst claims to have all the answers, he argued. The best practitioners <strong>combine data with observation and human judgment</strong>.
+      </p>
+
+      <div class="analyst-limit">
+        <div class="analyst-limit-label">Where This Voice Has Limits</div>
+        <div class="analyst-limit-text">Analytics can tell a team how to win more games. It cannot tell a fan why those games should feel worth watching — or tell a player why a skill they spent years perfecting has no place in the system. The pro-analytics voice is most persuasive inside the scoreboard, and least persuasive outside it.</div>
+      </div>
+    </div>
+
+    <div class="analyst-right reveal">
+      <div class="argument-list">
+        <div class="argument-item">
+          <div class="argument-icon">01</div>
+          <div class="argument-text">
+            <strong>The Math Is Correct</strong>
+            Three-point shots produce more expected points per attempt than mid-range twos — this is not opinion, it is probability.
+          </div>
+        </div>
+        <div class="argument-item">
+          <div class="argument-icon">02</div>
+          <div class="argument-text">
+            <strong>The Industry Has Already Voted</strong>
+            All 30 NBA teams now employ analytics staff. The market has accepted the argument. Teams that resisted lost ground.
+          </div>
+        </div>
+        <div class="argument-item">
+          <div class="argument-icon">03</div>
+          <div class="argument-text">
+            <strong>The Results Are Documented</strong>
+            Houston under Morey posted the 2nd-best regular season record in the NBA across 13 years. The data-first philosophy delivered sustained results.
+          </div>
+        </div>
+        <div class="argument-item">
+          <div class="argument-icon">04</div>
+          <div class="argument-text">
+            <strong>No Field Ignores Better Tools</strong>
+            Doctors use diagnostic technology. Engineers use simulation software. The NBA is a professional industry — professional standards apply.
+          </div>
+        </div>
+        <div class="argument-item">
+          <div class="argument-icon">05</div>
+          <div class="argument-text">
+            <strong>Data Informs, Not Controls</strong>
+            The best analysts argue data should inform the framework — not override the judgment of a player who has spent a lifetime developing it.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICE 3: FANS -->
+<section id="fans" class="voice-section voice-fan">
+  <div class="vs-header reveal">
+    <div class="vs-number">03</div>
+    <div class="vs-header-right">
+      <div class="vs-tag">Voice Three</div>
+      <h2 class="vs-title">The Fans:<br>The Honest Middle</h2>
+      <p class="vs-desc">The hardest voice to categorize — and in many ways the most honest. Fans can see the data, accept it works, and still feel something is missing.</p>
+    </div>
+  </div>
+
+  <div class="fan-layout">
+    <div class="fan-left reveal">
+      <p class="fan-body">
+        Fans, journalists, and cultural observers occupy a middle space. They understand why front offices use data. They agree analytics produces winning teams. But they still feel that something about the game has changed in ways <strong>the numbers cannot fully explain or justify</strong>.
+      </p>
+      <p class="fan-body">
+        Basketball commentator Corey Tulaba of the Hardwood Herald channel captures this middle ground directly — arguing that each camp fundamentally misunderstands the other's priorities. The core of the conflict, he argues, is not statistical at all.
+      </p>
+
+      <div class="video-embed-mock">
+        <div class="video-header">
+          <div class="video-play">
+            <svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg>
+          </div>
+          <div>
+            <div class="video-info-title">The Advanced Stats vs. Anti-Analytics NBA Debate: Why They're Both Wrong</div>
+            <div class="video-info-channel">Hardwood Herald · Corey Tulaba · YouTube, 2020</div>
+          </div>
+        </div>
+        <div class="video-body">
+          <blockquote class="video-pullquote">
+            "There's always been this war between analytics and film people. I think what's at the core of this debate is, basically, how we enjoy this entertainment product."
+          </blockquote>
+          <p class="video-analysis">Tulaba's unscripted delivery and willingness to criticize both sides simultaneously mirrors where most fans actually stand — neither fully pro-analytics nor fully against it, but frustrated that neither camp is asking the right question.</p>
+          <a href="https://youtube.com/watch?v=M3Akw3afgUM" target="_blank" class="video-link">
+            Watch on YouTube →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="fan-right reveal">
+      <div class="tension-meter">
+        <div class="tm-label">Estimated Public Alignment (synthesized from commentary, 2024)</div>
+        <div class="tm-item">
+          <div class="tm-name">Pro-Analytics</div>
+          <div class="tm-bar-track">
+            <div class="tm-bar-fill" style="width: 42%; background: var(--blue);"></div>
+          </div>
+          <div class="tm-pct" style="color: var(--blue);">42%</div>
+        </div>
+        <div class="tm-item">
+          <div class="tm-name">Traditionalist</div>
+          <div class="tm-bar-track">
+            <div class="tm-bar-fill" style="width: 33%; background: var(--red);"></div>
+          </div>
+          <div class="tm-pct" style="color: var(--red);">33%</div>
+        </div>
+        <div class="tm-item">
+          <div class="tm-name">Mixed / Fan</div>
+          <div class="tm-bar-track">
+            <div class="tm-bar-fill" style="width: 25%; background: var(--green);"></div>
+          </div>
+          <div class="tm-pct" style="color: var(--green);">25%</div>
+        </div>
+        <div style="font-size: 11px; color: var(--fog); margin-top: 10px; line-height: 1.5;">Source: synthesized from Bleacher Report, MIT News, and Basketball Network commentary, 2024</div>
+      </div>
+
+      <div class="stat-highlight">
+        <div class="sh-num">13/16</div>
+        <div class="sh-label">Most Efficient Offenses in NBA History</div>
+        <div class="sh-desc">The 2023–24 season featured 13 of the 16 most efficient offenses ever recorded — and fan complaints about the predictability and emotional flatness of the modern game persisted throughout that entire season. The fan voice identifies the question neither side has faced: what is basketball optimized <em>for</em>? Source: Ethan Strauss, Bleacher Report, 2024.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE BIGGER QUESTION -->
+<section id="question" class="question-section">
+  <div class="question-inner">
+    <div class="q-tag">
+      <span></span>
+      The Stakes
+      <span></span>
+    </div>
+    <h2 class="q-title reveal">
+      This isn't about<br><em>three-point shots.</em>
+    </h2>
+    <p class="q-body reveal">
+      The analytics controversy in basketball is a smaller version of a much larger conflict — playing out across medicine, education, hiring, and criminal justice: what happens when measurable outcomes start replacing unmeasurable values as the standard for decision-making?
+    </p>
+
+    <div class="conclusion-grid reveal">
+      <div class="cg-card">
+        <div class="cg-icon" style="background: rgba(231,76,60,0.12);">❓</div>
+        <div class="cg-title">The Traditionalists Ask</div>
+        <div class="cg-text">Is efficiency enough? Can you measure everything that makes something worth doing — or worth watching?</div>
+      </div>
+      <div class="cg-card">
+        <div class="cg-icon" style="background: rgba(52,152,219,0.12);">📊</div>
+        <div class="cg-title">The Analysts Answer</div>
+        <div class="cg-text">Data is the most honest tool available. In a professional industry, better information produces better decisions. The wins prove it.</div>
+      </div>
+      <div class="cg-card">
+        <div class="cg-icon" style="background: rgba(46,204,113,0.12);">🏀</div>
+        <div class="cg-title">The Fans Ask Back</div>
+        <div class="cg-text">Who gets to decide what the goal is in the first place? Basketball didn't ask to become an optimization problem.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section class="sources-section">
+  <div class="src-title">Sources</div>
+  <div class="src-grid">
+    <div class="src-item">Battier, Shane. Qtd. in "2015 MIT Sloan Conference." <em>Sports Illustrated</em>, 1 Mar. 2015.</div>
+    <div class="src-item">Bloyce, D. & Carter, R.J.F. "The Iron Cage of Efficiency." <em>Sport in Society</em>, vol. 26, no. 11, 2023.</div>
+    <div class="src-item">Chu, Jennifer. "Basketball Analytics Investment Is Key to NBA Wins." <em>MIT News</em>, 25 Mar. 2025.</div>
+    <div class="src-item">Morey, Daryl. Qtd. in "NBA Insider: Is It Numbers or Talent?" <em>Bleacher Report</em>.</div>
+    <div class="src-item">Strauss, Ethan. "Takeaways from Best Quotes at 2024 NBA All-Star Weekend." <em>Bleacher Report</em>, 2024.</div>
+    <div class="src-item">Tan, John Jefferson. "Charles Barkley Argues Analytics Don't Win Games." <em>Basketball Network</em>, Mar. 2024.</div>
+    <div class="src-item">Tulaba, Corey. "The Advanced Stats vs. Anti-Analytics NBA Debate." <em>YouTube</em>, Hardwood Herald, Aug. 2020.</div>
+    <div class="src-item">Smith, Sekou. "DeMar DeRozan's Old-School Game Near Extinction." <em>NBA.com</em>, 2022.</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Counting Points &amp; Losing the Game</div>
+  <div class="footer-meta">Hayyuu Gelchu · English 1102 · Georgia State University · 2026</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('in'), i * 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Voice indicator interaction
+  document.querySelectorAll('.vi-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.vi-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>
